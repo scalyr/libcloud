@@ -354,8 +354,15 @@ class ElasticHostsNodeDriver(NodeDriver):
         response = self.connection.request(action = '/servers/create', data = json.dumps(node_data),
                                            method = 'POST')
         
-        return (response.status == 200 and response.body != '')
-    
+        nodes = response.object
+        
+        if len(nodes) == 1:
+            nodes = self._to_node(nodes[0])
+        else:
+            nodes = [self._to_node(node) for node in nodes]
+        
+        return nodes
+
     # Extension methods
     def ex_set_node_configuration(self, node, **kwargs):
         # Changes the configuration of the running server
