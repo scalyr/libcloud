@@ -56,6 +56,7 @@ class Provider(object):
     IBM = 15
     OPENNEBULA = 16
     DREAMHOST = 17
+    ELASTICHOSTS = 18
 
 class NodeState(object):
     """
