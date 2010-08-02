@@ -403,13 +403,18 @@ class ElasticHostsNodeDriver(NodeDriver):
         except KeyError:
             state = NodeState.UNKNOWN
             
+        if isinstance(data['nic:0:dhcp'], list):
+            public_ip = data['nic:0:dhcp']
+        else:
+            public_ip = [data['nic:0:dhcp']]
+            
         extra = {'cpu': data['cpu'], 'smp': data['smp'], 'mem': data['mem'], 'started': data['started']}
         
         if data.has_key('vnc:ip') and data.has_key('vnc:password'):
             extra.update({'vnc_ip': data['vnc:ip'], 'vnc_password': data['vnc:password']})
             
         node = Node(id = data['server'], name = data['name'], state =  state,
-                    public_ip = [data['nic:0:dhcp']], private_ip = None, driver = self.connection.driver,
+                    public_ip = public_ip, private_ip = None, driver = self.connection.driver,
                     extra = extra)
         
         return node
