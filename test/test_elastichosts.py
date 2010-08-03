@@ -18,15 +18,15 @@ import sys
 import unittest
 import httplib
 
-from libcloud.drivers.elastichosts import ElasticHostsNodeDriver
+from libcloud.drivers.elastichosts import ElasticHostsBaseNodeDriver
 from test import MockHttp, TestCaseMixin
 from test.file_fixtures import FileFixtures
 
 class ElasticHostsTestCase(unittest.TestCase, TestCaseMixin):
     def setUp(self):
-        ElasticHostsNodeDriver.connectionCls.conn_classes = (None,
+        ElasticHostsBaseNodeDriver.connectionCls.conn_classes = (None,
                                                             ElasticHostsHttp)
-        self.driver = ElasticHostsNodeDriver('foo', 'bar')
+        self.driver = ElasticHostsBaseNodeDriver('foo', 'bar')
 
     def test_list_nodes(self):
         nodes = self.driver.list_nodes()

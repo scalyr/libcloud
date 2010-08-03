@@ -51,7 +51,7 @@ API_ENDPOINTS = {
     },
 }
 
-# Default API end-point. This should be changed if the accounts are located elsewhere.
+# Default API end-point for the base connection clase.
 DEFAULT_ENDPOINT = 'us-1'
 
 # ElasticHosts doesn't specify special instance types, so I just specified
@@ -195,22 +195,6 @@ class ElasticHostsResponse(Response):
         message = self.body
 
         return 'X-Elastic-Error: %s (%s)' % (error_header, self.body.strip())
-
-class ElasticHostsConnection(ConnectionUserAndKey):
-    """
-    Connection class for the ElasticHosts driver
-    """
-
-    host = API_ENDPOINTS[DEFAULT_ENDPOINT]['host']
-    responseCls = ElasticHostsResponse
-
-    def add_default_headers(self, headers):
-        headers['Accept'] = 'application/json'
-        headers['Content-Type'] = 'application/json'
-
-        headers['Authorization'] = 'Basic %s' % (base64.b64encode('%s:%s' % (self.user_id, self.key)))
-
-        return headers
     
 class ElasticHostsNodeSize(NodeSize):
     def __init__(self, id, name, cpu, ram, disk, bandwidth, price, driver):
@@ -228,15 +212,31 @@ class ElasticHostsNodeSize(NodeSize):
                  'price=%s driver=%s ...>')
                 % (self.id, self.name, self.cpu, self.ram, self.disk, self.bandwidth,
                    self.price, self.driver.name))
-    
-class ElasticHostsNodeDriver(NodeDriver):
+
+class ElasticHostsBaseConnection(ConnectionUserAndKey):
     """
-    ElasticHosts node driver
+    Base connection class for the ElasticHosts driver
+    """
+    
+    host = API_ENDPOINTS[DEFAULT_ENDPOINT]['host']
+    responseCls = ElasticHostsResponse
+
+    def add_default_headers(self, headers):
+        headers['Accept'] = 'application/json'
+        headers['Content-Type'] = 'application/json'
+
+        headers['Authorization'] = 'Basic %s' % (base64.b64encode('%s:%s' % (self.user_id, self.key)))
+
+        return headers
+
+class ElasticHostsBaseNodeDriver(NodeDriver):
+    """
+    Base ElasticHosts node driver
     """
 
     type = Provider.ELASTICHOSTS
     name = 'ElasticHosts'
-    connectionCls = ElasticHostsConnection
+    connectionCls = ElasticHostsBaseConnection
 
     def reboot_node(self, node):
         # Reboots the node
@@ -309,6 +309,8 @@ class ElasticHostsNodeDriver(NodeDriver):
         if nic_model not in ['e1000', 'rtl8139', 'virtio']:
             raise ElasticHostsException('Invalid NIC model specified')
         
+        # check that drive size is not smaller then pre installed image size
+        
         # First we create a drive with the specified size
         drive_data = {}
         drive_data.update({'name': kwargs['name'], 'size': '%sG' % (kwargs['size'].disk)})
@@ -352,14 +354,12 @@ class ElasticHostsNodeDriver(NodeDriver):
             node_data.update({'vnc:ip': 'auto', 'vnc:password': vnc_password})
 
         response = self.connection.request(action = '/servers/create', data = json.dumps(node_data),
-                                           method = 'POST')
+                                           method = 'POST').object
         
-        nodes = response.object
-        
-        if len(nodes) == 1:
-            nodes = self._to_node(nodes[0])
+        if isinstance(response, list):
+            nodes = [self._to_node(node) for node in response]
         else:
-            nodes = [self._to_node(node) for node in nodes]
+            nodes = self._to_node(response)
         
         return nodes
 
@@ -425,3 +425,45 @@ class ElasticHostsNodeDriver(NodeDriver):
                     extra = extra)
         
         return node
+      
+class ElasticHostsUK1Connection(ElasticHostsBaseConnection):
+    """
+    Connection class for the ElasticHosts driver for the London Peer 1 end-point
+    """
+
+    host = API_ENDPOINTS['uk-1']['host']
+      
+class ElasticHostsUK1NodeDriver(ElasticHostsBaseNodeDriver):
+    """
+    ElasticHosts node driver for the London Peer 1 end-point
+    """
+    
+    connectionCls = ElasticHostsUK1Connection
+    
+class ElasticHostsUK2Connection(ElasticHostsBaseConnection):
+    """
+    Connection class for the ElasticHosts driver for the London Bluesquare end-point
+    """
+
+    host = API_ENDPOINTS['uk-2']['host']
+    
+class ElasticHostsUK2NodeDriver(ElasticHostsBaseNodeDriver):
+    """
+    ElasticHosts node driver for the London Bluesquare end-point
+    """
+
+    connectionCls = ElasticHostsUK2Connection
+    
+class ElasticHostsUS1Connection(ElasticHostsBaseConnection):
+    """
+    Connection class for the ElasticHosts driver for the San Antonio Peer 1 end-point
+    """
+
+    host = API_ENDPOINTS['us-1']['host']
+    
+class ElasticHostsUS1NodeDriver(ElasticHostsBaseNodeDriver):
+    """
+    ElasticHosts node driver for the San Antonio Peer 1 end-point
+    """
+
+    connectionCls = ElasticHostsUS1Connection

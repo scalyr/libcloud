@@ -57,6 +57,9 @@ class Provider(object):
     OPENNEBULA = 16
     DREAMHOST = 17
     ELASTICHOSTS = 18
+    ELASTICHOSTS_UK1 = 19
+    ELASTICHOSTS_UK2 = 20
+    ELASTICHOSTS_US1 = 21
 
 class NodeState(object):
     """
