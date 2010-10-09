@@ -22,6 +22,7 @@ __all__ = [
     'ec2',
     'ecp',
     'elastichosts',
+    'cloudsigma',
     'gogrid',
     'ibm_sbc',
     'linode',

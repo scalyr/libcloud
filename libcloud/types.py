@@ -35,6 +35,7 @@ class Provider(object):
     @cvar IBM: IBM Developer Cloud
     @cvar OPENNEBULA: OpenNebula.org
     @cvar DREAMHOST: DreamHost Private Server
+    @cvar CLOUDSIGMA: CloudSigma.com
     """
     DUMMY = 0
     EC2 = 1  # deprecated name
@@ -61,6 +62,8 @@ class Provider(object):
     ELASTICHOSTS_UK2 = 20
     ELASTICHOSTS_US1 = 21
     EC2_AP_SOUTHEAST = 22
+    CLOUDSIGMA = 23
+    CLOUDSIGMA_ZRH = 24
 
 class NodeState(object):
     """
@@ -86,7 +89,7 @@ class LibcloudError(Exception):
 
 class MalformedResponseError(LibcloudError):
     """Exception for the cases when a provider returns a malformed
-    response, e.g. you request JSON and provider returns 
+    response, e.g. you request JSON and provider returns
     '<h3>something</h3>' due to some error on their side."""
     def __init__(self, value, body=None, driver=None):
       self.value = value
