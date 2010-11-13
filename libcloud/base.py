@@ -20,14 +20,45 @@ import httplib, urllib
 import libcloud
 from libcloud.types import NodeState, DeploymentError
 from libcloud.ssh import SSHClient
+from libcloud.httplib_ssl import VerifiedHTTPSConnection
 import time
 import hashlib
 import StringIO
+import ssl
 import os
 import socket
 import struct
 from pipes import quote as pquote
 
+# For backward compatibility this option is disabled by default
+VERIFY_SSL_CERT = False
+
+# File containing one or more PEM-encoded CA certificates concatenated together
+CA_CERTS_FILE_PATH = '/etc/ssl/certs/ca-certificates.crt'
+
+if VERIFY_SSL_CERT:
+    try:
+        from M2Crypto import httpslib
+        from M2Crypto import SSL
+        from M2Crypto.SSL import SSLError
+
+        M2CRYPTO = True
+        HTTPSConnection = httpslib.HTTPSConnection
+    except ImportError:
+        # If M2Crypto library is not available custom HTTPS connection module
+        # which verifies the server certificate is used.
+        M2CRYPTO = False
+        SSLError = None
+        HTTPSConnection = VerifiedHTTPSConnection
+else:
+    HTTPSConnection = httplib.HTTPSConnection
+
+if not VERIFY_SSL_CERT:
+    import warnings
+    warnings.warn('SSL certificate verification is disabled, this can pose a '
+                  'security risk. For more information how to enable the SSL '
+                  'certificate verification, please visit the libcloud '
+                  'documentation.')
 
 class Node(object):
     """
@@ -257,13 +288,13 @@ class LoggingConnection():
         cmd.extend([pquote("https://%s:%d%s" % (self.host, self.port, url))])
         return " ".join(cmd)
 
-class LoggingHTTPSConnection(LoggingConnection, httplib.HTTPSConnection):
+class LoggingHTTPSConnection(LoggingConnection, HTTPSConnection):
     """
     Utility Class for logging HTTPS connections
     """
 
     def getresponse(self):
-        r = httplib.HTTPSConnection.getresponse(self)
+        r = HTTPSConnection.getresponse(self)
         if self.log is not None:
             r, rv = self._log_response(r)
             self.log.write(rv + "\n")
@@ -277,8 +308,7 @@ class LoggingHTTPSConnection(LoggingConnection, httplib.HTTPSConnection):
             self.log.write(pre +
                            self._log_curl(method, url, body, headers) + "\n")
             self.log.flush()
-        return httplib.HTTPSConnection.request(self, method, url,
-                                               body, headers)
+        return HTTPSConnection.request(self, method, url, body, headers)
 
 class LoggingHTTPConnection(LoggingConnection, httplib.HTTPConnection):
     """
@@ -315,8 +345,8 @@ class ConnectionKey(object):
     # with upstream Python (see http://bugs.python.org/issue1589 for details)
     # and not with libcloud.
 
-    #conn_classes = (httplib.LoggingHTTPConnection, LoggingHTTPSConnection)
-    conn_classes = (httplib.HTTPConnection, httplib.HTTPSConnection)
+    #conn_classes = (LoggingHTTPSConnection)
+    conn_classes = (httplib.HTTPConnection, HTTPSConnection)
 
     responseCls = Response
     connection = None
@@ -355,7 +385,17 @@ class ConnectionKey(object):
         host = host or self.host
         port = port or self.port[self.secure]
 
-        connection = self.conn_classes[self.secure](host, port)
+        kwargs = {'host': host, 'port': port}
+        if self.secure:
+            if VERIFY_SSL_CERT and M2CRYPTO:
+                ssl_context = SSL.Context()
+                ssl_context.load_verify_info(cafile = CA_CERTS_FILE_PATH)
+                ssl_context.set_verify(SSL.verify_peer |
+                                      SSL.verify_fail_if_no_peer_cert |
+         	                          SSL.verify_client_once, 20)
+                kwargs['ssl_context'] = ssl_context
+
+        connection = self.conn_classes[self.secure](**kwargs)
         # You can uncoment this line, if you setup a reverse proxy server
         # which proxies to your endpoint, and lets you easily capture
         # connections in cleartext when you setup the proxy to do SSL
@@ -439,8 +479,12 @@ class ConnectionKey(object):
         # Removed terrible hack...this a less-bad hack that doesn't execute a
         # request twice, but it's still a hack.
         self.connect()
-        self.connection.request(method=method, url=url, body=data,
-                                headers=headers)
+        try:
+            self.connection.request(method=method, url=url, body=data,
+                                    headers=headers)
+        except (SSLError, ssl.SSLError), e:
+            raise ssl.SSLError(str(e))
+
         response = self.responseCls(self.connection.getresponse())
         response.connection = self
         return response
@@ -631,7 +675,7 @@ class NodeDriver(object):
         or returning a generated password.
 
         This function may raise a L{DeplyomentException}, if a create_node
-        call was successful, but there is a later error (like SSH failing or 
+        call was successful, but there is a later error (like SSH failing or
         timing out).  This exception includes a Node object which you may want
         to destroy if incomplete deployments are not desirable.
 
