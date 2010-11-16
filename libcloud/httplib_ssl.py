@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 import socket
 import ssl
 import httplib
@@ -41,8 +42,24 @@ class VerifiedHTTPSConnection(httplib.HTTPSConnection):
         common_name = self._get_commonName(cert)
         alt_names = self._get_subjectAltName(cert)
 
-        if (hostname == common_name) or hostname in alt_names:
-            return True
+        if self._is_wildcard_name(common_name):
+            regex = self._to_regex(common_name)
+
+            if regex.match(hostname):
+                return True
+        else:
+            if hostname == common_name:
+                return True
+
+        for alt_name in alt_names:
+            if self._is_wildcard_name(alt_name):
+                regex = self._to_regex(alt_name)
+
+                if regex.match(hostname):
+                    return True
+            else:
+                if hostname == alt_name:
+                    return True
 
         return False
 
@@ -66,3 +83,14 @@ class VerifiedHTTPSConnection(httplib.HTTPSConnection):
                 return value[0][1]
 
         return None
+
+    def _is_wildcard_name(self, name):
+        if name.find('*') != -1:
+            return True
+
+        return False
+
+    def _to_regex(self, name):
+        regex = name.replace('*', '([^.])+').replace('.', '\.')
+
+        return re.compile(regex)
