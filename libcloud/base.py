@@ -286,6 +286,20 @@ class NodeAuthPassword(object):
     def __repr__(self):
         return '<NodeAuthPassword>'
 
+class RawResponse(object):
+
+    status = httplib.OK
+    response = None
+    headers = {}
+    error = None
+    connection = None
+
+    def __init__(self, response):
+        self.response = response
+        self.status = response.status
+        self.headers = dict(response.getheaders())
+        self.error = response.reason
+
 class Response(object):
     """
     A Base Response class to derive from.
