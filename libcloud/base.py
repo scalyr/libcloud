@@ -538,7 +538,8 @@ class ConnectionKey(object):
                 params=None,
                 data='',
                 headers=None,
-                method='GET'):
+                method='GET',
+                raw=False):
         """
         Request a given `action`.
 
@@ -596,7 +597,11 @@ class ConnectionKey(object):
         except ssl.SSLError, e:
             raise ssl.SSLError(str(e))
 
-        response = self.responseCls(self.connection.getresponse())
+        if raw:
+            response = RawResponse(self.connection.getresponse())
+        else:
+            response = self.responseCls(self.connection.getresponse())
+
         response.connection = self
         return response
 
