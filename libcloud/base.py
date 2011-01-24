@@ -581,7 +581,9 @@ class ConnectionKey(object):
         # Encode data if necessary
         if data != '' and data != None:
             data = self.encode_data(data)
-        headers.update({'Content-Length': str(len(data))})
+
+        if data is not None:
+            headers.update({'Content-Length': str(len(data))})
 
         if params:
             url = '?'.join((action, urllib.urlencode(params)))
