@@ -18,6 +18,7 @@ from __future__ import with_statement
 
 import os
 import os.path
+import mimetypes
 from os.path import join as pjoin
 
 from libcloud.types import LibcloudError
@@ -237,6 +238,9 @@ class StorageDriver(object):
     def delete_container(self, container):
         raise NotImplementedError, \
             'delete_container not implemented for this driver'
+
+    def _guess_file_mime_type(self, filename):
+        (mimetype, encoding) = mimetypes.guess_type(filename)
 
     def _save_object(self, response, obj, destination_path,
                      overwrite_existing=False, delete_on_failure=True):
