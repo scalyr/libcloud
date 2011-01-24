@@ -242,6 +242,30 @@ class StorageDriver(object):
     def _guess_file_mime_type(self, filename):
         (mimetype, encoding) = mimetypes.guess_type(filename)
 
+    def _get_object_as_stream(self, response, chunk_size=None):
+        """
+        Generator which reads and yields object data in chunks.
+
+        @type response: C{HTTPResponse}
+        @param response: HTTP response.
+
+        @type obj: C{obj}
+        @param obj: Object instance.
+
+        @type chunk_size: C{int}
+        @param chunk_size: Optional chunk size (defaults to CHUNK_SIZE)
+        """
+        chunk_size = chunk_size or CHUNK_SIZE
+
+        try:
+            data_read = response.read(chunk_size)
+
+            while len(data_read) > 0:
+                yield data_read
+                data_read = response.read(chunk_size)
+        except Exception, e:
+            raise e
+
     def _save_object(self, response, obj, destination_path,
                      overwrite_existing=False, delete_on_failure=True):
 
