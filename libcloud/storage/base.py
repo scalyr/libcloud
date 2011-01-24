@@ -70,8 +70,8 @@ class Object(object):
                                            overwrite_existing,
                                            delete_on_failure)
 
-    def as_file(self):
-        return self.driver.object_as_file(self)
+    def as_stream(self, chunk_size=None):
+        return self.driver.object_as_stream(self, chunk_size)
 
     def delete(self):
         return self.driver.delete_object(self)
@@ -111,6 +111,9 @@ class Container(object):
     def download_object(self, obj, destination_path, overwrite_existing=False,
                         delete_on_failure=True):
         return self.driver.download_object(obj, destination_path)
+
+    def object_as_stream(self, obj, chunk_size=None):
+        return self.driver.object_as_stream(obj, chunk_size)
 
     def delete_object(self, obj):
         return self.driver.delete_object(obj)
@@ -211,7 +214,20 @@ class StorageDriver(object):
         raise NotImplementedError, \
             'download_object not implemented for this driver'
 
-    def upload_object(self, file_path, object_name, file_hash=None):
+    def object_as_stream(self, obj, chunk_size=None):
+        """
+        Return a generator which yields object data.
+
+        @type obj: C{Object}
+        @param obj: Object instance
+
+        @type chunk_size: C{int}
+        @param chunk_size: Optional chunk size (in bytes).
+        """
+        raise NotImplementedError, \
+            'object_as_stream not implemented for this driver'
+
+    def upload_object(self, file_path, container, object_name, extra=None,
         raise NotImplementedError, \
             'upload_object not implemented for this driver'
 
