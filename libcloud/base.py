@@ -579,7 +579,7 @@ class ConnectionKey(object):
         headers.update({'User-Agent': self._user_agent()})
         headers.update({'Host': self.host})
         # Encode data if necessary
-        if data != '':
+        if data != '' and data != None:
             data = self.encode_data(data)
         headers.update({'Content-Length': str(len(data))})
 
