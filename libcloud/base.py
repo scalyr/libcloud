@@ -288,17 +288,36 @@ class NodeAuthPassword(object):
 
 class RawResponse(object):
 
-    status = httplib.OK
-    response = None
-    headers = {}
-    error = None
-    connection = None
+    def __init__(self, response=None):
+        self._status = None
+        self._response = None
+        self._headers = {}
+        self._error = None
+        self._reason = None
 
-    def __init__(self, response):
-        self.response = response
-        self.status = response.status
-        self.headers = dict(response.getheaders())
-        self.error = response.reason
+    @property
+    def response(self):
+        if not self._response:
+            self._response = self.connection.connection.getresponse()
+        return self._response
+
+    @property
+    def status(self):
+        if not self._status:
+            self._status = self.response.status
+        return self._status
+
+    @property
+    def headers(self):
+        if not self._headers:
+            self._headers = dict(self.response.getheaders())
+        return self._headers
+
+    @property
+    def reason(self):
+        if not self._reason:
+            self._reason = self.response.reason
+        return self._reason
 
 class Response(object):
     """
