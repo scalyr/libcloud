@@ -105,8 +105,11 @@ class Container(object):
     def list_objects(self):
         return self.driver.list_container_objects(self)
 
-    def upload_object(self, file_path, object_name, file_hash=None):
-        return self.driver.upload_object(file_path, object_name, file_hash)
+    def upload_object(self, file_path, object_name, extra=None, file_hash=None):
+        return self.driver.upload_object(file_path, self, object_name, extra, file_hash)
+
+    def stream_object_data(self, iterator, object_name, extra=None):
+        return self.driver.stream_object_data(iterator, self, object_name, extra)
 
     def download_object(self, obj, destination_path, overwrite_existing=False,
                         delete_on_failure=True):
