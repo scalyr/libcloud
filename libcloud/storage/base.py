@@ -260,8 +260,10 @@ class StorageDriver(object):
         raise NotImplementedError, \
             'delete_container not implemented for this driver'
 
-    def _guess_file_mime_type(self, filename):
+    def _guess_file_mime_type(self, file_path):
+        filename = os.path.basename(file_path)
         (mimetype, encoding) = mimetypes.guess_type(filename)
+        return mimetype, encoding
 
     def _get_object_as_stream(self, response, chunk_size=None):
         """
