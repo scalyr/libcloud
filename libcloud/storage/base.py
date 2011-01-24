@@ -18,6 +18,8 @@ from __future__ import with_statement
 
 import os
 import os.path
+import hashlib
+import urllib
 import mimetypes
 from os.path import join as pjoin
 
@@ -329,27 +331,53 @@ class StorageDriver(object):
 
         return True
 
-    def _upload_object(self, request, file_path, calculate_hash=True):
-        file_hash = None
+    def _stream_data(self, response, iterator, calculate_hash=True):
+        """
+        Stream a data over an http connection.
+
+        @type response: C{RawResponse}
+        @param response: RawResponse object.
+
+        @type iterator: C{}
+        @param response: An object which implements an iterator interface (File
+                         object, etc.)
+
+        @return C{tuple} First item is a boolean indicator of success, second
+                         one is the uploaded data MD5 hash and the third one
+                         is the number of transferred bytes.
+        """
+        data_hash = None
         if calculate_hash:
-            object_hash = hashlib.md5()
+            data_hash = hashlib.md5()
 
         bytes_transferred = 0
-        with open (file_path, 'rb') as file_handle:
-            chunk = file_handle.read(CHUNK_SIZE)
+        try:
+            chunk = iterator.next()
+        except StopIteration:
+            # No data?
+            return False, None, None
 
-            while len(chunk) > 0:
+
+        while len(chunk) > 0:
+            if calculate_hash:
+                try:
+                    response.connection.connection.send(chunk)
+                except Exception, e:
+                    # Timeout, etc.
+                    return False, None, bytes_transferred
+
                 if calculate_hash:
-                    try:
-                        request.write(chunk)
-                    except Exception:
-                        # Timeout, etc.
-                        return False, None
+                    data_hash.update(chunk)
 
-                    object_hash.update(chunk)
-                    chunk = file_handle.read(CHUNK_SIZE)
-                    bytes_transferred += len(chunk)
+                try:
+                    chunk = iterator.next()
+                except StopIteration:
+                    chunk = ''
+                bytes_transferred += len(chunk)
 
-        return True, file_hash.hexdigest()
+        if calculate_hash:
+            data_hash = data_hash.hexdigest()
+
+        return True, data_hash, bytes_transferred
 
 
