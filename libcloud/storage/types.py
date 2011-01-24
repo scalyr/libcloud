@@ -62,3 +62,7 @@ class ContainerIsNotEmptyError(ContainerError):
 
 class ObjectDoesNotExistError(ObjectError):
     error_type = 'ObjectDoesNotExistError'
+
+class ObjectHashMismatchError(ObjectError):
+    error_type = 'ObjectHashMismatchError'
+
