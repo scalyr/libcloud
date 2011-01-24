@@ -331,7 +331,8 @@ class StorageDriver(object):
 
         return True
 
-    def _stream_data(self, response, iterator, calculate_hash=True):
+    def _stream_data(self, response, iterator, chunked=False,
+                     calculate_hash=True):
         """
         Stream a data over an http connection.
 
@@ -357,15 +358,21 @@ class StorageDriver(object):
             # No data?
             return False, None, None
 
-
         while len(chunk) > 0:
             if calculate_hash:
                 try:
-                    response.connection.connection.send(chunk)
+                    if chunked:
+                        response.connection.connection.send('%X\r\n' %
+                                                           (len(chunk)))
+                        response.connection.connection.send(chunk)
+                        response.connection.connection.send('\r\n')
+                    else:
+                        response.connection.connection.send(chunk)
                 except Exception, e:
                     # Timeout, etc.
                     return False, None, bytes_transferred
 
+                bytes_transferred += len(chunk)
                 if calculate_hash:
                     data_hash.update(chunk)
 
@@ -373,18 +380,22 @@ class StorageDriver(object):
                     chunk = iterator.next()
                 except StopIteration:
                     chunk = ''
-                bytes_transferred += len(chunk)
+
+        if chunked:
+                response.connection.connection.send('0\r\n\r\n')
 
         if calculate_hash:
             data_hash = data_hash.hexdigest()
 
         return True, data_hash, bytes_transferred
 
-    def _upload_file(self, response, file_path, calculate_hash=True):
+    def _upload_file(self, response, file_path, chunked=False, 
+                     calculate_hash=True):
         with open (file_path, 'rb') as file_handle:
             success, data_hash, bytes_transferred = \
                      self._stream_data(response=response,
                                        iterator=iter(file_handle),
+                                       chunked=chunked,
                                        calculate_hash=calculate_hash)
 
         return success, data_hash, bytes_transferred
