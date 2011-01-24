@@ -617,13 +617,11 @@ class ConnectionKey(object):
             # instead of dealing with splitting and sending the file ourselves?
             #
             if raw:
-                print action
                 self.connection.putrequest(method, action)
 
                 for key, value in headers.iteritems():
                     self.connection.putheader(key, value)
-                
-                print headers
+
                 self.connection.endheaders()
             else:
                 self.connection.request(method=method, url=url, body=data,
