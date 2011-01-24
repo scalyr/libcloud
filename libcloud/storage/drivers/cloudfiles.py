@@ -257,7 +257,7 @@ class CloudFilesStorageDriver(StorageDriver):
     def download_object(self, obj, destination_path, overwrite_existing=False,
                         delete_on_failure=True):
         return self._get_object(obj, self._save_object,
-                                {'obj': obj, 
+                                {'obj': obj,
                                  'destination_path': destination_path,
                                  'overwrite_existing': overwrite_existing,
                                  'delete_on_failure': delete_on_failure})
@@ -295,8 +295,8 @@ class CloudFilesStorageDriver(StorageDriver):
                                 upload_func_args=upload_func_args)
 
     def delete_object(self, obj):
-        container_name = obj.container.name
-        object_name = obj.name
+        container_name = self._clean_container_name(obj.container.name)
+        object_name = self._clean_object_name(obj.name)
 
         response = self.connection.request('/%s/%s' % (container_name,
                                                        object_name), method='DELETE')
