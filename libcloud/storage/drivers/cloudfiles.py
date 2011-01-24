@@ -297,11 +297,15 @@ class CloudFilesStorageDriver(StorageDriver):
 
     def _clean_container_name(self, name):
         """
-        Remove leading slash from the container name.
+        Clean container name.
         """
         if name.startswith('/'):
             name = name[1:]
+        name = urllib.quote(name)
+        return name
 
+    def _clean_object_name(self, name):
+        name = urllib.quote(name)
         return name
 
     def _to_container_list(self, response):
