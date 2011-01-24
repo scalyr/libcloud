@@ -265,6 +265,19 @@ class StorageDriver(object):
         (mimetype, encoding) = mimetypes.guess_type(filename)
         return mimetype, encoding
 
+    def _urlencode_value(self, value):
+        """
+        URL encode a value.
+
+        @type value: C{str/int}
+        @param value: Value to encode.
+
+        @return C{str} URL encoded value.
+        """
+        encoded = urllib.urlencode({'value': value})
+        encoded = encoded.replace('value=', '')
+        return encoded
+
     def _get_object_as_stream(self, response, chunk_size=None):
         """
         Generator which reads and yields object data in chunks.
