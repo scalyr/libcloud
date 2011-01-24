@@ -380,4 +380,11 @@ class StorageDriver(object):
 
         return True, data_hash, bytes_transferred
 
+    def _upload_file(self, response, file_path, calculate_hash=True):
+        with open (file_path, 'rb') as file_handle:
+            success, data_hash, bytes_transferred = \
+                     self._stream_data(response=response,
+                                       iterator=iter(file_handle),
+                                       calculate_hash=calculate_hash)
 
+        return success, data_hash, bytes_transferred
