@@ -228,12 +228,17 @@ class StorageDriver(object):
             'object_as_stream not implemented for this driver'
 
     def upload_object(self, file_path, container, object_name, extra=None,
+                      file_hash=None):
         raise NotImplementedError, \
             'upload_object not implemented for this driver'
 
     def object_as_file(self, obj):
         raise NotImplementedError, \
             'object_as_file not implemented for this driver'
+
+    def delete_container(self, obj):
+        raise NotImplementedError, \
+            'delete_container not implemented for this driver'
 
     def delete_object(self, obj):
         """
