@@ -281,6 +281,19 @@ class CloudFilesStorageDriver(StorageDriver):
                                 object_name=object_name, extra=extra,
                                 upload_func=upload_func,
                                 upload_func_args=upload_func_args)
+
+    def stream_object_data(self, iterator, container, object_name, extra=None):
+        if isinstance(iterator, file):
+            iterator = iter(iterator)
+
+        upload_func = self._stream_data
+        upload_func_args = { 'iterator': iterator }
+
+        return self._put_object(container=container, iterator=iterator,
+                                object_name=object_name, extra=extra,
+                                upload_func=upload_func,
+                                upload_func_args=upload_func_args)
+
     def delete_object(self, obj):
         container_name = obj.container.name
         object_name = obj.name
