@@ -119,7 +119,7 @@ class Container(object):
         return self.driver.delete_object(obj)
 
     def delete(self):
-        return self.driver.container_delete(self)
+        return self.driver.delete_container(self)
 
     def __repr__(self):
         return '<Container: name=%s, provider=%s>' % (self.name, self.driver.name)
