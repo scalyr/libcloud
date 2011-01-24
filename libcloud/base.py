@@ -594,13 +594,26 @@ class ConnectionKey(object):
         # request twice, but it's still a hack.
         self.connect()
         try:
-            self.connection.request(method=method, url=url, body=data,
-                                    headers=headers)
+            # @TODO: Should we just pass File object as body to request method
+            # instead of dealing with splitting and sending the file ourselves?
+            #
+            if raw:
+                print action
+                self.connection.putrequest(method, action)
+
+                for key, value in headers.iteritems():
+                    self.connection.putheader(key, value)
+                
+                print headers
+                self.connection.endheaders()
+            else:
+                self.connection.request(method=method, url=url, body=data,
+                                        headers=headers)
         except ssl.SSLError, e:
             raise ssl.SSLError(str(e))
 
         if raw:
-            response = RawResponse(self.connection.getresponse())
+            response = RawResponse()
         else:
             response = self.responseCls(self.connection.getresponse())
 
