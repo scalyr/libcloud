@@ -280,18 +280,23 @@ class StorageDriver(object):
                                 'overwrite_existing=False',
                                 driver=self)
 
-        data_read = response.read(CHUNK_SIZE)
+        stream = self._get_object_as_stream(response)
+
+        data_read = stream.next()
         bytes_transferred = 0
 
         with open(file_path, 'wb') as file_handle:
             while len(data_read) > 0:
                 file_handle.write(data_read)
                 bytes_transferred += len(data_read)
-                data_read = response.read(CHUNK_SIZE)
+
+                try:
+                    data_read = stream.next()
+                except StopIteration:
+                    data_read = ''
 
         if obj.size != bytes_transferred:
             # Transfer failed, support retry?
-            print obj.size, bytes_transferred
             if delete_on_failure:
                 try:
                     os.unlink(file_path)
@@ -301,3 +306,28 @@ class StorageDriver(object):
             return False
 
         return True
+
+    def _upload_object(self, request, file_path, calculate_hash=True):
+        file_hash = None
+        if calculate_hash:
+            object_hash = hashlib.md5()
+
+        bytes_transferred = 0
+        with open (file_path, 'rb') as file_handle:
+            chunk = file_handle.read(CHUNK_SIZE)
+
+            while len(chunk) > 0:
+                if calculate_hash:
+                    try:
+                        request.write(chunk)
+                    except Exception:
+                        # Timeout, etc.
+                        return False, None
+
+                    object_hash.update(chunk)
+                    chunk = file_handle.read(CHUNK_SIZE)
+                    bytes_transferred += len(chunk)
+
+        return True, file_hash.hexdigest()
+
+
