@@ -253,20 +253,15 @@ class CloudFilesStorageDriver(StorageDriver):
 
     def download_object(self, obj, destination_path, overwrite_existing=False,
                         delete_on_failure=True):
-        container_name = obj.container.name
-        object_name = obj.name
+        return self._get_object(obj, self._save_object,
+                                {'obj': obj, 
+                                 'destination_path': destination_path,
+                                 'overwrite_existing': overwrite_existing,
+                                 'delete_on_failure': delete_on_failure})
 
-        response = self.connection.request('/%s/%s' % (container_name,
-                                                       object_name),
-                                           raw=True)
-
-        if response.status == httplib.OK:
-            return self._save_object(response.response, obj, destination_path,
-                                     overwrite_existing, delete_on_failure)
-        elif response.status == httplib.NOT_FOUND:
-            raise ObjectDoesNotExistError(name=object_name)
-
-        raise LibcloudError('Unexpected status code: %s' % (response.status))
+    def object_as_stream(self, obj, chunk_size=None):
+        return self._get_object(obj, self._get_object_as_stream,
+                                {'chunk_size': chunk_size})
 
     def delete_object(self, obj):
         container_name = obj.container.name
@@ -281,6 +276,24 @@ class CloudFilesStorageDriver(StorageDriver):
             raise ObjectDoesNotExistError(name=object_name)
 
         raise LibcloudError('Unexpected status code: %s' % (response.status))
+
+    def _get_object(self, obj, callback, callback_args):
+        container_name = obj.container.name
+        object_name = obj.name
+
+        response = self.connection.request('/%s/%s' % (container_name,
+                                                       object_name),
+                                           raw=True)
+
+        callback_args['response'] = response.response
+
+        if response.status == httplib.OK:
+            return callback(**callback_args)
+        elif response.status == httplib.NOT_FOUND:
+            raise ObjectDoesNotExistError(name=object_name)
+
+        raise LibcloudError('Unexpected status code: %s' % (response.status))
+
 
     def _clean_container_name(self, name):
         """
