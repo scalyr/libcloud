@@ -166,6 +166,14 @@ class StorageDriver(object):
             'list_containers not implemented for this driver'
 
     def list_objects(self, container):
+        """
+        Return a list of objects for the given container.
+
+        @type container: C{Container}
+        @param container: Container instance
+
+        @return A list of Object instances.
+        """
         raise NotImplementedError, \
             'list_objects not implemented for this driver'
 
@@ -258,6 +266,14 @@ class StorageDriver(object):
             'create_container not implemented for this driver'
 
     def delete_container(self, container):
+        """
+        Delete a container.
+
+        @type container: C{Container}
+        @param container: Container instance
+
+        @return C{bool} True on success, False otherwise.
+        """
         raise NotImplementedError, \
             'delete_container not implemented for this driver'
 
@@ -268,7 +284,7 @@ class StorageDriver(object):
 
     def _get_object_as_stream(self, response, chunk_size=None):
         """
-        Generator which reads and yields object data in chunks.
+        Return generator which reads and yields object data in chunks.
 
         @type response: C{HTTPResponse}
         @param response: HTTP response.
@@ -292,7 +308,27 @@ class StorageDriver(object):
 
     def _save_object(self, response, obj, destination_path,
                      overwrite_existing=False, delete_on_failure=True):
+        """
+        Save object to the provided path.
 
+        @type response: C{RawResponse}
+        @param response: RawResponse instance.
+
+        @type obj: C{Object}
+        @param obj: Object instance.
+
+        @type destination_path: C{Str}
+        @param destination_path: Destination directory.
+
+        @type delete_on_failure: C{bool}
+        @param delete_on_failure: True to delete partially downloaded object if
+                                  the download fails.
+        @type overwrite_existing: C{bool}
+        @param overwrite_existing: True to overwrite a local path if it already
+                                   exists.
+
+        @return C{bool} True on success, False otherwise.
+        """
         if not os.path.exists(destination_path):
             raise LibcloudError(value='Path %s does not exist' % (destination_path),
                                 driver=self)
@@ -389,8 +425,25 @@ class StorageDriver(object):
 
         return True, data_hash, bytes_transferred
 
-    def _upload_file(self, response, file_path, chunked=False, 
+    def _upload_file(self, response, file_path, chunked=False,
                      calculate_hash=True):
+        """
+        Upload a file to the server.
+
+        @type response: C{RawResponse}
+        @param response: RawResponse object.
+
+        @type file_path: C{str}
+        @param file_path: Path to a local file.
+
+        @type iterator: C{}
+        @param response: An object which implements an iterator interface (File
+                         object, etc.)
+
+        @return C{tuple} First item is a boolean indicator of success, second
+                         one is the uploaded data MD5 hash and the third one
+                         is the number of transferred bytes.
+        """
         with open (file_path, 'rb') as file_handle:
             success, data_hash, bytes_transferred = \
                      self._stream_data(response=response,
