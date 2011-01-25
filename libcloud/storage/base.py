@@ -340,7 +340,12 @@ class StorageDriver(object):
 
         stream = utils.read_in_chunks(response, chunk_size)
 
-        data_read = stream.next()
+        try:
+            data_read = stream.next()
+        except StopIteration:
+            # Empty response?
+            return False
+
         bytes_transferred = 0
 
         with open(file_path, 'wb') as file_handle:
@@ -366,7 +371,7 @@ class StorageDriver(object):
         return True
 
     def _stream_data(self, response, iterator, chunked=False,
-                     calculate_hash=True):
+                     calculate_hash=True, chunk_size=None):
         """
         Stream a data over an http connection.
 
@@ -374,20 +379,28 @@ class StorageDriver(object):
         @param response: RawResponse object.
 
         @type iterator: C{}
-        @param response: An object which implements an iterator interface (File
-                         object, etc.)
+        @param response: An object which implements an iterator interface
+                         or a File like object with read method.
+
+        @type chunk_size: C{int}
+        @param chunk_size: Optional chunk size (defaults to CHUNK_SIZE)
 
         @return C{tuple} First item is a boolean indicator of success, second
                          one is the uploaded data MD5 hash and the third one
                          is the number of transferred bytes.
         """
+
+        chunk_size = chunk_size or CHUNK_SIZE
+
         data_hash = None
         if calculate_hash:
             data_hash = hashlib.md5()
 
+        generator = utils.read_in_chunks(iterator, chunk_size)
+
         bytes_transferred = 0
         try:
-            chunk = iterator.next()
+            chunk = generator.next()
         except StopIteration:
             # No data?
             return False, None, None
@@ -411,7 +424,7 @@ class StorageDriver(object):
                     data_hash.update(chunk)
 
                 try:
-                    chunk = iterator.next()
+                    chunk = generator.next()
                 except StopIteration:
                     chunk = ''
 
