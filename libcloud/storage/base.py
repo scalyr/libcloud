@@ -23,6 +23,7 @@ import urllib
 import mimetypes
 from os.path import join as pjoin
 
+from libcloud import utils
 from libcloud.types import LibcloudError
 from libcloud.base import ConnectionKey
 
@@ -290,32 +291,9 @@ class StorageDriver(object):
         (mimetype, encoding) = mimetypes.guess_type(filename)
         return mimetype, encoding
 
-    def _get_object_as_stream(self, response, chunk_size=None):
-        """
-        Return generator which reads and yields object data in chunks.
-
-        @type response: C{HTTPResponse}
-        @param response: HTTP response.
-
-        @type obj: C{obj}
-        @param obj: Object instance.
-
-        @type chunk_size: C{int}
-        @param chunk_size: Optional chunk size (defaults to CHUNK_SIZE)
-        """
-        chunk_size = chunk_size or CHUNK_SIZE
-
-        try:
-            data_read = response.read(chunk_size)
-
-            while len(data_read) > 0:
-                yield data_read
-                data_read = response.read(chunk_size)
-        except Exception, e:
-            raise e
-
     def _save_object(self, response, obj, destination_path,
-                     overwrite_existing=False, delete_on_failure=True):
+                     overwrite_existing=False, delete_on_failure=True,
+                     chunk_size=None):
         """
         Save object to the provided path.
 
@@ -335,8 +313,14 @@ class StorageDriver(object):
         @param overwrite_existing: True to overwrite a local path if it already
                                    exists.
 
+        @type chunk_size: C{int}
+        @param chunk_size: Optional chunk size (defaults to CHUNK_SIZE)
+
         @return C{bool} True on success, False otherwise.
         """
+
+        chunk_size = chunk_size or CHUNK_SIZE
+
         if not os.path.exists(destination_path):
             raise LibcloudError(value='Path %s does not exist' % (destination_path),
                                 driver=self)
@@ -348,7 +332,7 @@ class StorageDriver(object):
                                 'overwrite_existing=False',
                                 driver=self)
 
-        stream = self._get_object_as_stream(response)
+        stream = utils.read_in_chunks(response, chunk_size)
 
         data_read = stream.next()
         bytes_transferred = 0
