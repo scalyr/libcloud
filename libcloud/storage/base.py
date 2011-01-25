@@ -261,7 +261,15 @@ class StorageDriver(object):
         raise NotImplementedError, \
             'delete_object not implemented for this driver'
 
-    def create_container(self, container):
+    def create_container(self, container_name):
+        """
+        Create a new container.
+
+        @type container_name: C{str}
+        @param container_name: Container name.
+
+        @return C{Container} instance on success.
+        """
         raise NotImplementedError, \
             'create_container not implemented for this driver'
 
