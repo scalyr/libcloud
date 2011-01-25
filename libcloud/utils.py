@@ -13,20 +13,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-def read_in_chunks(file_like_object, chunk_size=None):
-    """
-    Return generator which reads and yields file data in chunks.
+from httplib import HTTPResponse
 
-    @type response: C{File}
-    @param response: File like objects which implements the read method.
+def read_in_chunks(iterator, chunk_size=None):
+    """
+    Return a generator which yields data in chunks.
+
+    @type iterator: C{Iterator}
+    @param response: An object which implements an iterator interface
+                     or a File like object with read method.
 
     @type chunk_size: C{int}
     @param chunk_size: Optional chunk size (defaults to CHUNK_SIZE)
     """
 
-    while True:
-        data = file_like_object.read(chunk_size)
+    if isinstance(iterator, (file, HTTPResponse)):
+        get_data = iterator.read
+        args = (chunk_size, )
+    else:
+        get_data = iterator.next
+        args = ()
 
-        if not data:
-            break
-        yield data
+    while True:
+       chunk = str(get_data(*args))
+
+       if len(chunk) == 0:
+           raise StopIteration
+
+       yield chunk
