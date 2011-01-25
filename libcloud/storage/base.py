@@ -213,7 +213,8 @@ class StorageDriver(object):
         @param obj: Object instance.
 
         @type destination_path: C{str}
-        @type destination_path: Path where an object will  be downloaded to.
+        @type destination_path: Full path to a file or a directory where the
+                                incoming file will be saved.
 
         @type overwrite_existing: C{bool}
         @type overwrite_existing: True to overwrite an existing file.
@@ -321,11 +322,16 @@ class StorageDriver(object):
 
         chunk_size = chunk_size or CHUNK_SIZE
 
-        if not os.path.exists(destination_path):
+        base_name = os.path.basename(destination_path)
+
+        if not base_name and not os.path.exists(destination_path):
             raise LibcloudError(value='Path %s does not exist' % (destination_path),
                                 driver=self)
 
-        file_path = pjoin(destination_path, obj.name)
+        if not base_name:
+            file_path = pjoin(destination_path, obj.name)
+        else:
+            file_path = destination_path
 
         if os.path.exists(file_path) and not overwrite_existing:
             raise LibcloudError(value='File %s already exists, but ' % (file_path) +
