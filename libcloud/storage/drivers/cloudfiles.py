@@ -339,7 +339,7 @@ class CloudFilesStorageDriver(StorageDriver):
                 name = file_path
             else:
                 name = object_name
-            content_type, _ = self._guess_file_mime_type(name)
+            content_type, _ = utils.guess_file_mime_type(name)
 
             if not content_type:
                 raise AttributeError('File content-type could not be guessed and' +

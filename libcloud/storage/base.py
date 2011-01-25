@@ -20,7 +20,6 @@ import os
 import os.path
 import hashlib
 import urllib
-import mimetypes
 from os.path import join as pjoin
 
 from libcloud import utils
@@ -286,11 +285,6 @@ class StorageDriver(object):
         """
         raise NotImplementedError, \
             'delete_container not implemented for this driver'
-
-    def _guess_file_mime_type(self, file_path):
-        filename = os.path.basename(file_path)
-        (mimetype, encoding) = mimetypes.guess_type(filename)
-        return mimetype, encoding
 
     def _save_object(self, response, obj, destination_path,
                      overwrite_existing=False, delete_on_failure=True,

@@ -41,3 +41,8 @@ def read_in_chunks(iterator, chunk_size=None):
            raise StopIteration
 
        yield chunk
+
+def guess_file_mime_type(file_path):
+    filename = os.path.basename(file_path)
+    (mimetype, encoding) = mimetypes.guess_type(filename)
+    return mimetype, encoding
