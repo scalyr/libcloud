@@ -107,6 +107,10 @@ class Container(object):
     def list_objects(self):
         return self.driver.list_container_objects(self)
 
+    def get_object(self, object_name):
+        return self.driver.get_object(container_name=self.name,
+                                      object_name=object_name)
+
     def upload_object(self, file_path, object_name, extra=None, file_hash=None):
         return self.driver.upload_object(file_path, self, object_name, extra, file_hash)
 
