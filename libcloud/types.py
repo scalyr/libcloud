@@ -89,6 +89,9 @@ class LibcloudError(Exception):
         self.value = value
         self.driver = driver
 
+    def __str__(self):
+        return "<LibcloudError in "+ repr(self.driver) +" "+ repr(self.value) + ">"
+
 class MalformedResponseError(LibcloudError):
     """Exception for the cases when a provider returns a malformed
     response, e.g. you request JSON and provider returns 
