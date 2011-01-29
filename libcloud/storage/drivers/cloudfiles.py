@@ -23,6 +23,7 @@ try:
 except:
     import simplejson as json
 
+from libcloud import utils
 from libcloud.types import MalformedResponseError, LibcloudError
 from libcloud.types import InvalidCredsError
 from libcloud.base import ConnectionUserAndKey, Response
@@ -223,19 +224,19 @@ class CloudFilesStorageDriver(StorageDriver):
 
         raise LibcloudError('Unexpected status code: %s' % (response.status))
 
-    def create_container(self, name):
+    def create_container(self, container_name):
         name = self._clean_container_name(name)
-        response = self.connection.request('/%s' % (name), method='PUT')
+        response = self.connection.request('/%s' % (container_name), method='PUT')
 
         if response.status == httplib.CREATED:
             # Accepted mean that container is not yet created but it will be
             # eventually
             extra = { 'object_count': 0 }
-            container = Container(name=name, extra=extra, driver=self)
+            container = Container(name=container_name, extra=extra, driver=self)
 
             return container
         elif response.status == httplib.ACCEPTED:
-            error = ContainerAlreadyExistsError(None, self, name)
+            error = ContainerAlreadyExistsError(None, self, container_name)
             raise error
 
         raise LibcloudError('Unexpected status code: %s' % (response.status))

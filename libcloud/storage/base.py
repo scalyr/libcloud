@@ -165,7 +165,7 @@ class StorageDriver(object):
         raise NotImplementedError, \
             'list_containers not implemented for this driver'
 
-    def list_objects(self, container):
+    def list_container_objects(self, container):
         """
         Return a list of objects for the given container.
 
