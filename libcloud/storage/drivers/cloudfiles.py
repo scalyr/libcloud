@@ -177,6 +177,20 @@ class CloudFilesStorageDriver(StorageDriver):
     connectionCls = CloudFilesConnection
     hash_type = 'md5'
 
+    def get_meta_data(self):
+        response = self.connection.request('', method='HEAD')
+
+        if response.status == httplib.NO_CONTENT:
+            container_count = response.headers.get('x-account-container-count', 'unknown')
+            object_count = response.headers.get('x-account-object-count', 'unknown')
+            bytes_used = response.headers.get('x-account-bytes-used', 'unknown')
+           
+           return { 'container_count': int(container_count), 
+                      'object_count': int(object_count),
+                      'bytes_used': int(bytes_used) }
+
+        raise LibcloudError('Unexpected status code: %s' % (response.status))
+
     def list_containers(self):
         response = self.connection.request('')
 

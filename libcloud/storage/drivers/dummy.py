@@ -67,6 +67,32 @@ class DummyStorageDriver(StorageDriver):
     def __init__(self, api_key, api_secret):
         self._containers = {}
 
+    def get_meta_data(self):
+        """
+        >>> driver = DummyStorageDriver('key', 'secret')
+        >>> driver.get_meta_data()
+        {'object_count': 0, 'container_count': 0, 'bytes_used': 0}
+        >>> container = driver.create_container(container_name='test container 1')
+        >>> container = driver.create_container(container_name='test container 2')
+        >>> obj = container.stream_object_data(object_name='test object', iterator=DummyFileObject(5, 10), extra={})
+        >>> driver.get_meta_data()
+        {'object_count': 1, 'container_count': 2, 'bytes_used': 50}
+        """
+
+        container_count = len(self._containers)
+        object_count = sum([ len(self._containers[container]['objects']) for
+                        container in self._containers ])
+
+        bytes_used = 0
+        for container in self._containers:
+            objects = self._containers[container]['objects']
+            for _, obj in objects.iteritems():
+                bytes_used += obj.size
+
+        return { 'container_count': int(container_count),
+                  'object_count': int(object_count),
+                  'bytes_used': int(bytes_used) }
+
     def list_containers(self):
         """
         >>> driver = DummyStorageDriver('key', 'secret')
