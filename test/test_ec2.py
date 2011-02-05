@@ -94,11 +94,6 @@ class EC2Tests(unittest.TestCase, TestCaseMixin):
         self.assertTrue(len(locations) > 0)
         self.assertTrue(locations[0].availability_zone != None)
 
-    def test_list_location(self):
-        locations = self.driver.list_locations()
-        self.assertTrue(len(locations) > 0)
-        self.assertTrue(locations[0].availability_zone != None)
-
     def test_reboot_node(self):
         node = Node('i-4382922a', None, None, None, None, self.driver)
         ret = self.driver.reboot_node(node)
@@ -110,19 +105,32 @@ class EC2Tests(unittest.TestCase, TestCaseMixin):
         self.assertTrue(ret)
 
     def test_list_sizes(self):
-        sizes = self.driver.list_sizes()
-        self.assertEqual(len(sizes), 9)
+        region_old = self.driver.region_name
 
-        ids = [s.id for s in sizes]
-        self.assertTrue('t1.micro' in ids)
-        self.assertTrue('m1.small' in ids)
-        self.assertTrue('m1.large' in ids)
-        self.assertTrue('m1.xlarge' in ids)
-        self.assertTrue('c1.medium' in ids)
-        self.assertTrue('c1.xlarge' in ids)
-        self.assertTrue('m2.xlarge' in ids)
-        self.assertTrue('m2.2xlarge' in ids)
-        self.assertTrue('m2.4xlarge' in ids)
+        for region_name in [ 'us-east-1', 'us-west-1', 'eu-west-1',
+                             'ap-southeast-1' ]:
+            self.driver.region_name = region_name
+            sizes = self.driver.list_sizes()
+
+            ids = [s.id for s in sizes]
+            self.assertTrue('t1.micro' in ids)
+            self.assertTrue('m1.small' in ids)
+            self.assertTrue('m1.large' in ids)
+            self.assertTrue('m1.xlarge' in ids)
+            self.assertTrue('c1.medium' in ids)
+            self.assertTrue('c1.xlarge' in ids)
+            self.assertTrue('m2.xlarge' in ids)
+            self.assertTrue('m2.2xlarge' in ids)
+            self.assertTrue('m2.4xlarge' in ids)
+
+            if region_name == 'us-east-1':
+                self.assertEqual(len(sizes), 11)
+                self.assertTrue('cg1.4xlarge' in ids)
+                self.assertTrue('cc1.4xlarge' in ids)
+            else:
+                self.assertEqual(len(sizes), 9)
+
+        self.driver.region_name = region_old
 
     def test_list_images(self):
         images = self.driver.list_images()
@@ -139,13 +147,14 @@ class EC2Tests(unittest.TestCase, TestCaseMixin):
         self.assertEqual(availability_zone.zone_state, 'available')
         self.assertEqual(availability_zone.region_name, 'eu-west-1')
 
-    def test_ex_list_availability_zones(self):
-        availability_zones = self.driver.ex_list_availability_zones()
-        availability_zone = availability_zones[0]
-        self.assertTrue(len(availability_zones) > 0)
-        self.assertEqual(availability_zone.name, 'eu-west-1a')
-        self.assertEqual(availability_zone.zone_state, 'available')
-        self.assertEqual(availability_zone.region_name, 'eu-west-1')
+    def test_ex_describe_tags(self):
+        node = Node('i-4382922a', None, None, None, None, self.driver)
+        tags = self.driver.ex_describe_tags(node)
+
+        self.assertEqual(len(tags), 3)
+        self.assertTrue('tag' in tags)
+        self.assertTrue('owner' in tags)
+        self.assertTrue('stack' in tags)
 
 class EC2MockHttp(MockHttp):
 
@@ -153,10 +162,6 @@ class EC2MockHttp(MockHttp):
 
     def _DescribeInstances(self, method, url, body, headers):
         body = self.fixtures.load('describe_instances.xml')
-        return (httplib.OK, body, {}, httplib.responses[httplib.OK])
-
-    def _DescribeAvailabilityZones(self, method, url, body, headers):
-        body = self.fixtures.load('describe_availability_zones.xml')
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
 
     def _DescribeAvailabilityZones(self, method, url, body, headers):
@@ -185,6 +190,10 @@ class EC2MockHttp(MockHttp):
 
     def _TerminateInstances(self, method, url, body, headers):
         body = self.fixtures.load('terminate_instances.xml')
+        return (httplib.OK, body, {}, httplib.responses[httplib.OK])
+
+    def _DescribeTags(self, method, url, body, headers):
+        body = self.fixtures.load('describe_tags.xml')
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
 
 class EC2APSETests(EC2Tests):
