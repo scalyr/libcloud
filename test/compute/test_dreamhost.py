@@ -20,13 +20,15 @@ from libcloud.types import NodeState, InvalidCredsError
 
 import httplib
 
-try: import json
-except: import simplejson as json
+try:
+  import json
+except: 
+  import simplejson as json
 
-from test import MockHttp, TestCaseMixin
-from secrets import DREAMHOST_KEY
+from test import MockHttp
+from test.compute import TestCaseMixin
+from test.secrets import DREAMHOST_KEY
 
-#class DreamhostTest(unittest.TestCase, TestCaseMixin):
 class DreamhostTest(unittest.TestCase, TestCaseMixin):
 
     def setUp(self):

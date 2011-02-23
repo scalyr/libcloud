@@ -18,12 +18,14 @@
 #
 
 import sys
-from libcloud.drivers.linode import LinodeNodeDriver
-from libcloud.base import Node, NodeAuthPassword
-from test import MockHttp, TestCaseMixin
-
 import unittest
 import httplib
+
+from libcloud.drivers.linode import LinodeNodeDriver
+from libcloud.base import Node, NodeAuthPassword
+
+from test import MockHttp
+from test.compute import TestCaseMixin
 
 class LinodeTest(unittest.TestCase, TestCaseMixin):
     # The Linode test suite

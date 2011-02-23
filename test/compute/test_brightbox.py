@@ -19,12 +19,13 @@ try:
 except ImportError:
     import simplejson as json
 
-from libcloud.drivers.brightbox import BrightboxNodeDriver
-from libcloud.types import NodeState, InvalidCredsError
+from libcloud.compute.drivers.brightbox import BrightboxNodeDriver
+from libcloud.compute.types import NodeState, InvalidCredsError
 
-from test import MockHttp, TestCaseMixin
+from test import MockHttp
+from test.compute import TestCaseMixin
 from test.file_fixtures import FileFixtures
-from secrets import BRIGHTBOX_CLIENT_ID, BRIGHTBOX_CLIENT_SECRET
+from test.secrets import BRIGHTBOX_CLIENT_ID, BRIGHTBOX_CLIENT_SECRET
 
 
 class BrightboxTest(unittest.TestCase, TestCaseMixin):

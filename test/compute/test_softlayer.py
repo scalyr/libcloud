@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import httplib
 import unittest
 import sys
@@ -25,9 +24,10 @@ from libcloud.drivers.softlayer import SoftLayerNodeDriver as SoftLayer
 from libcloud.types import NodeState
 
 from test import MockHttp
+from test.compute import TestCaseMixin
 from test.file_fixtures import FileFixtures
 
-from secrets import SOFTLAYER_USER, SOFTLAYER_APIKEY
+from test.secrets import SOFTLAYER_USER, SOFTLAYER_APIKEY
 
 class MockSoftLayerTransport(xmlrpclib.Transport):
 

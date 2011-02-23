@@ -14,17 +14,18 @@
 # limitations under the License.
 import sys
 import unittest
+import httplib
+
+from xml.etree import ElementTree as ET
 
 from libcloud.drivers.slicehost import SlicehostNodeDriver as Slicehost
 from libcloud.types import NodeState, InvalidCredsError
 from libcloud.base import Node, NodeImage, NodeSize
 
-import httplib
-
-from test import MockHttp, TestCaseMixin
+from test import MockHttp
+from test.compute import TestCaseMixin
 from test.file_fixtures import FileFixtures
-from secrets import SLICEHOST_KEY
-from xml.etree import ElementTree as ET
+from test.secrets import SLICEHOST_KEY
 
 class SlicehostTest(unittest.TestCase, TestCaseMixin):
 

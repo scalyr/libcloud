@@ -14,15 +14,16 @@
 # limitations under the License.
 import sys
 import unittest
+import httplib
 
 from libcloud.drivers.ecp import ECPNodeDriver
 from libcloud.types import NodeState
-from test import MockHttp, TestCaseMixin
+
+from test import MockHttp
+from test.compute import TestCaseMixin
 from test.file_fixtures import FileFixtures
 
-import httplib
-
-from secrets import ECP_USER_NAME, ECP_PASSWORD
+from test.secrets import ECP_USER_NAME, ECP_PASSWORD
 
 class ECPTests(unittest.TestCase, TestCaseMixin):
 

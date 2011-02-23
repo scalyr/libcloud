@@ -26,9 +26,9 @@ from libcloud.types import LibcloudError, InvalidCredsError
 from libcloud.drivers.gogrid import GoGridNodeDriver
 from libcloud.base import Node, NodeImage, NodeSize, NodeLocation
 
-from test import MockHttp, TestCaseMixin
+from test import MockHttp
+from test.compute import TestCaseMixin
 from test.file_fixtures import FileFixtures
-
 
 class GoGridTests(unittest.TestCase, TestCaseMixin):
 

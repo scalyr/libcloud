@@ -20,8 +20,12 @@ from unittest import TextTestRunner, TestLoader
 from glob import glob
 from os.path import splitext, basename, join as pjoin
 
+import libcloud.utils
+libcloud.utils.SHOW_DEPRECATION_WARNING = False
+
 HTML_VIEWSOURCE_BASE = 'https://svn.apache.org/viewvc/incubator/libcloud/trunk'
 PROJECT_BASE_DIR = 'http://incubator.apache.org/libcloud/'
+TEST_PATHS = [ 'test/compute', 'test/storage' ]
 
 class TestCommand(Command):
     user_options = []
@@ -29,7 +33,8 @@ class TestCommand(Command):
     def initialize_options(self):
         THIS_DIR = os.path.abspath(os.path.split(__file__)[0])
         sys.path.insert(0, THIS_DIR)
-        sys.path.insert(0, pjoin(THIS_DIR, 'test'))
+        for test_path in TEST_PATHS:
+          sys.path.insert(0, pjoin(THIS_DIR, test_path))
         self._dir = os.getcwd()
 
     def finalize_options(self):
@@ -63,10 +68,11 @@ class TestCommand(Command):
                 sys.exit(1)
 
         testfiles = []
-        for t in glob(pjoin(self._dir, 'test', 'test_*.py')):
-            testfiles.append('.'.join(
-                ['test', splitext(basename(t))[0]])
-            )
+        for test_path in TEST_PATHS:
+          for t in glob(pjoin(self._dir, test_path, 'test_*.py')):
+              testfiles.append('.'.join(
+                  [test_path.replace('/', '.'), splitext(basename(t))[0]])
+              )
 
         tests = TestLoader().loadTestsFromNames(testfiles)
         t = TextTestRunner(verbosity = 1)

@@ -19,7 +19,9 @@ import unittest
 import httplib
 
 from libcloud.drivers.elastichosts import ElasticHostsBaseNodeDriver
-from test import MockHttp, TestCaseMixin
+
+from test import MockHttp
+from test.compute import TestCaseMixin
 from test.file_fixtures import FileFixtures
 
 class ElasticHostsTestCase(unittest.TestCase, TestCaseMixin):

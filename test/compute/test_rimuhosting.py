@@ -15,12 +15,14 @@
 # Copyright 2009 RedRata Ltd
 
 import sys
-from libcloud.drivers.rimuhosting import RimuHostingNodeDriver
-from test import MockHttp, TestCaseMixin
-from test.file_fixtures import FileFixtures
-
 import unittest
 import httplib
+
+from libcloud.drivers.rimuhosting import RimuHostingNodeDriver
+
+from test import MockHttp
+from test.compute import TestCaseMixin
+from test.file_fixtures import FileFixtures
 
 class RimuHostingTest(unittest.TestCase, TestCaseMixin):
     def setUp(self):

@@ -14,6 +14,7 @@
 # limitations under the License.
 import sys
 import unittest
+import httplib
 
 from libcloud.types import InvalidCredsError
 from libcloud.drivers.rackspace import (
@@ -22,11 +23,11 @@ from libcloud.drivers.rackspace import (
     RackspaceNodeIpAddresses)
 from libcloud.base import Node, NodeImage, NodeSize
 
-from test import MockHttp, TestCaseMixin
+from test import MockHttp
+from test.compute import TestCaseMixin
 from test.file_fixtures import FileFixtures
 
-from secrets import RACKSPACE_USER, RACKSPACE_KEY
-import httplib
+from test.secrets import RACKSPACE_USER, RACKSPACE_KEY
 
 class RackspaceTests(unittest.TestCase, TestCaseMixin):
 

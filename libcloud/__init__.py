@@ -23,7 +23,6 @@ __all__ = ["__version__", "enable_debug"]
 
 __version__ = "0.4.3-dev"
 
-
 def enable_debug(fo):
     """
     Enable library wide debugging to a file-like object.

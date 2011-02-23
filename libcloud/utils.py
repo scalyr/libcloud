@@ -15,7 +15,11 @@
 
 import os
 import mimetypes
+import warnings
 from httplib import HTTPResponse
+
+SHOW_DEPRECATION_WARNING = True
+OLD_API_REMOVE_VERSION = '0.6.0'
 
 def read_in_chunks(iterator, chunk_size=None):
     """
@@ -48,3 +52,11 @@ def guess_file_mime_type(file_path):
     filename = os.path.basename(file_path)
     (mimetype, encoding) = mimetypes.guess_type(filename)
     return mimetype, encoding
+
+def deprecated_warning(module):
+    if SHOW_DEPRECATION_WARNING:
+        warnings.warn('This path has been deprecated and the module'
+                       'is now available at "libcloud.storage.%s".'
+                       ' This path will be fully removed in libcloud %s.' % \
+                       (module, OLD_API_REMOVE_VERSION),
+                  category=DeprecationWarning)

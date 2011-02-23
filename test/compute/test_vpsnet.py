@@ -15,16 +15,16 @@
 import sys
 import unittest
 import exceptions
+import httplib
 
 from libcloud.drivers.vpsnet import VPSNetNodeDriver
 from libcloud.base import Node
 from libcloud.types import NodeState
 
-from test import MockHttp, TestCaseMixin
+from test import MockHttp
+from test.compute import TestCaseMixin
 
-import httplib
-
-from secrets import VPSNET_USER, VPSNET_KEY
+from test.secrets import VPSNET_USER, VPSNET_KEY
 
 class VPSNetTests(unittest.TestCase, TestCaseMixin):
 

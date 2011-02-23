@@ -13,20 +13,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from file_fixtures import FileFixtures
+"""
+Drivers for working with different providers
+"""
 
-import sys
-import unittest
-
-class FileFixturesTests(unittest.TestCase):
-
-    def test_success(self):
-        f = FileFixtures('meta')
-        self.assertEqual("Hello, World!", f.load('helloworld.txt'))
-
-    def test_failure(self):
-        f = FileFixtures('meta')
-        self.assertRaises(IOError, f.load, 'nil')
-
-if __name__ == '__main__':
-    sys.exit(unittest.main())
+__all__ = [
+    'brightbox',
+    'dummy',
+    'ec2',
+    'ecp',
+    'elastichosts',
+    'cloudsigma',
+    'gogrid',
+    'ibm_sbc',
+    'linode',
+    'opennebula',
+    'rackspace',
+    'rimuhosting',
+    'slicehost',
+    'softlayer',
+    'vcloud',
+    'voxel',
+    'vpsnet',
+]

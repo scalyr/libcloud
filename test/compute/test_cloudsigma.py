@@ -17,11 +17,13 @@ import sys
 import unittest
 import httplib
 
-from libcloud.base import Node
-from libcloud.drivers.cloudsigma import CloudSigmaBaseNodeDriver
+from libcloud.compute.base import Node
+from libcloud.compute.drivers.cloudsigma import CloudSigmaBaseNodeDriver
 from libcloud.drivers.cloudsigma import str2dicts, str2list, dict2str
-from test import MockHttp, TestCaseMixin
+from test import MockHttp
+from test.compute import TestCaseMixin
 from test.file_fixtures import FileFixtures
+
 
 class CloudSigmaTestCase(unittest.TestCase, TestCaseMixin):
     def setUp(self):

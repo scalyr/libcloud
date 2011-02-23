@@ -14,16 +14,16 @@
 # limitations under the License.
 import sys
 import unittest
+import httplib
 
 from libcloud.drivers.ec2 import EC2NodeDriver, EC2APSENodeDriver, IdempotentParamError
 from libcloud.base import Node, NodeImage, NodeSize, NodeLocation
 
-from test import MockHttp, TestCaseMixin
+from test import MockHttp
+from test.compute import TestCaseMixin
 from test.file_fixtures import FileFixtures
 
-import httplib
-
-from secrets import EC2_ACCESS_ID, EC2_SECRET
+from test.secrets import EC2_ACCESS_ID, EC2_SECRET
 
 class EC2Tests(unittest.TestCase, TestCaseMixin):
 

@@ -12,8 +12,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import sys
+import unittest
 
-from libcloud.utils import deprecated_warning
-from libcloud.compute.drivers.linode import *
+from test.file_fixtures import FileFixtures
 
-deprecated_warning(__name__)
+class FileFixturesTests(unittest.TestCase):
+
+    def test_success(self):
+        f = FileFixtures('meta')
+        self.assertEqual("Hello, World!", f.load('helloworld.txt'))
+
+    def test_failure(self):
+        f = FileFixtures('meta')
+        self.assertRaises(IOError, f.load, 'nil')
+
+if __name__ == '__main__':
+    sys.exit(unittest.main())

@@ -15,12 +15,14 @@ import unittest
 import httplib
 import sys
 
-from test.file_fixtures import FileFixtures
 from libcloud.types import InvalidCredsError
 from libcloud.drivers.ibm_sbc import IBMNodeDriver as IBM
 from libcloud.base import Node, NodeImage, NodeSize, NodeLocation
-from test import MockHttp, TestCaseMixin
-from secrets import IBM_USER, IBM_SECRET
+
+from test import MockHttp
+from test.compute import TestCaseMixin
+from test.file_fixtures import FileFixtures
+from test.secrets import IBM_USER, IBM_SECRET
 
 class IBMTests(unittest.TestCase, TestCaseMixin):
     """

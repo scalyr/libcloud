@@ -14,16 +14,15 @@
 # limitations under the License.
 import sys
 import unittest
+import httplib
 
 from libcloud.drivers.voxel import VoxelNodeDriver as Voxel
 from libcloud.types import InvalidCredsError
 
-import httplib
-
 from test import MockHttp
 from test.file_fixtures import FileFixtures
 
-from secrets import VOXEL_KEY, VOXEL_SECRET
+from test.secrets import VOXEL_KEY, VOXEL_SECRET
 
 class VoxelTest(unittest.TestCase):
 

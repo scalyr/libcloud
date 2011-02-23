@@ -17,16 +17,16 @@
 # limitations under the License.
 import sys
 import unittest
+import httplib
 
 from libcloud.drivers.opennebula import OpenNebulaNodeDriver
 from libcloud.base import Node, NodeImage, NodeSize
 
-from test import MockHttp, TestCaseMixin
+from test import MockHttp
+from test.compute import TestCaseMixin
 from test.file_fixtures import FileFixtures
 
-import httplib
-
-from secrets import OPENNEBULA_USER, OPENNEBULA_KEY
+from test.secrets import OPENNEBULA_USER, OPENNEBULA_KEY
 
 class OpenNebulaTests(unittest.TestCase, TestCaseMixin):
 
