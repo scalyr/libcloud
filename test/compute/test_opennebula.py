@@ -19,8 +19,8 @@ import sys
 import unittest
 import httplib
 
-from libcloud.drivers.opennebula import OpenNebulaNodeDriver
-from libcloud.base import Node, NodeImage, NodeSize
+from libcloud.compute.drivers.opennebula import OpenNebulaNodeDriver
+from libcloud.compute.base import Node, NodeImage, NodeSize
 
 from test import MockHttp
 from test.compute import TestCaseMixin

@@ -17,9 +17,9 @@
 Amazon EC2 driver
 """
 from libcloud.providers import Provider
-from libcloud.types import NodeState, InvalidCredsError, MalformedResponseError, LibcloudError
-from libcloud.base import Node, Response, ConnectionUserAndKey
-from libcloud.base import NodeDriver, NodeSize, NodeImage, NodeLocation
+from libcloud.compute.types import NodeState, InvalidCredsError, MalformedResponseError, LibcloudError
+from libcloud.compute.base import Node, Response, ConnectionUserAndKey
+from libcloud.compute.base import NodeDriver, NodeSize, NodeImage, NodeLocation
 import base64
 import hmac
 import os

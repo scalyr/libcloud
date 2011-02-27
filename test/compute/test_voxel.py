@@ -16,8 +16,8 @@ import sys
 import unittest
 import httplib
 
-from libcloud.drivers.voxel import VoxelNodeDriver as Voxel
-from libcloud.types import InvalidCredsError
+from libcloud.compute.drivers.voxel import VoxelNodeDriver as Voxel
+from libcloud.compute.types import InvalidCredsError
 
 from test import MockHttp
 from test.file_fixtures import FileFixtures

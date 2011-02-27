@@ -16,11 +16,11 @@
 """
 Enomaly ECP driver
 """
-from libcloud.base import NodeDriver, NodeSize, NodeLocation
-from libcloud.base import NodeImage, Node
-from libcloud.base import Response, ConnectionUserAndKey
-from libcloud.types import Provider, NodeState, InvalidCredsError
-from libcloud.base import is_private_subnet
+from libcloud.compute.base import NodeDriver, NodeSize, NodeLocation
+from libcloud.compute.base import NodeImage, Node
+from libcloud.compute.base import Response, ConnectionUserAndKey
+from libcloud.compute.types import Provider, NodeState, InvalidCredsError
+from libcloud.compute.base import is_private_subnet
 
 import time
 import base64

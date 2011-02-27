@@ -18,9 +18,9 @@ import httplib
 
 from xml.etree import ElementTree as ET
 
-from libcloud.drivers.slicehost import SlicehostNodeDriver as Slicehost
-from libcloud.types import NodeState, InvalidCredsError
-from libcloud.base import Node, NodeImage, NodeSize
+from libcloud.compute.drivers.slicehost import SlicehostNodeDriver as Slicehost
+from libcloud.compute.types import NodeState, InvalidCredsError
+from libcloud.compute.base import Node, NodeImage, NodeSize
 
 from test import MockHttp
 from test.compute import TestCaseMixin

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from libcloud.types import LibcloudError
+from libcloud.compute.types import LibcloudError
 
 class Provider(object):
     """

@@ -16,10 +16,10 @@ import sys
 import unittest
 import httplib
 
-from libcloud.drivers.vcloud import TerremarkDriver
-from libcloud.drivers.vcloud import VCloudNodeDriver
-from libcloud.base import Node
-from libcloud.types import NodeState
+from libcloud.compute.drivers.vcloud import TerremarkDriver
+from libcloud.compute.drivers.vcloud import VCloudNodeDriver
+from libcloud.compute.base import Node
+from libcloud.compute.types import NodeState
 
 from test import MockHttp
 from test.compute import TestCaseMixin

@@ -19,7 +19,7 @@ import httplib
 
 from libcloud.compute.base import Node
 from libcloud.compute.drivers.cloudsigma import CloudSigmaBaseNodeDriver
-from libcloud.drivers.cloudsigma import str2dicts, str2list, dict2str
+from libcloud.compute.drivers.cloudsigma import str2dicts, str2list, dict2str
 from test import MockHttp
 from test.compute import TestCaseMixin
 from test.file_fixtures import FileFixtures

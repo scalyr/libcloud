@@ -16,7 +16,7 @@
 Provider related utilities
 """
 
-from libcloud.types import Provider
+from libcloud.compute.types import Provider
 
 DRIVERS = {
     Provider.DUMMY:

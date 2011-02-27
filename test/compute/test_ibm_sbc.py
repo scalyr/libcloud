@@ -15,9 +15,9 @@ import unittest
 import httplib
 import sys
 
-from libcloud.types import InvalidCredsError
-from libcloud.drivers.ibm_sbc import IBMNodeDriver as IBM
-from libcloud.base import Node, NodeImage, NodeSize, NodeLocation
+from libcloud.compute.types import InvalidCredsError
+from libcloud.compute.drivers.ibm_sbc import IBMNodeDriver as IBM
+from libcloud.compute.base import Node, NodeImage, NodeSize, NodeLocation
 
 from test import MockHttp
 from test.compute import TestCaseMixin

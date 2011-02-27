@@ -15,8 +15,8 @@
 import sys
 import unittest
 
-from libcloud.drivers.dreamhost import DreamhostNodeDriver
-from libcloud.types import NodeState, InvalidCredsError
+from libcloud.compute.drivers.dreamhost import DreamhostNodeDriver
+from libcloud.compute.types import NodeState, InvalidCredsError
 
 import httplib
 

@@ -24,10 +24,10 @@ import hashlib
 from xml.etree import ElementTree as ET
 
 from libcloud.providers import Provider
-from libcloud.types import NodeState, InvalidCredsError
-from libcloud.base import Response, ConnectionUserAndKey
-from libcloud.base import NodeDriver, Node, NodeLocation
-from libcloud.base import NodeImage, NodeSize
+from libcloud.compute.types import NodeState, InvalidCredsError
+from libcloud.compute.base import Response, ConnectionUserAndKey
+from libcloud.compute.base import NodeDriver, Node, NodeLocation
+from libcloud.compute.base import NodeImage, NodeSize
 
 
 API_HOST = ''

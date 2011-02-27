@@ -17,9 +17,9 @@ Dummy Driver
 
 @note: This driver is out of date
 """
-from libcloud.base import ConnectionKey, NodeDriver, NodeSize, NodeLocation
-from libcloud.base import NodeImage, Node
-from libcloud.types import Provider,NodeState
+from libcloud.compute.base import ConnectionKey, NodeDriver, NodeSize, NodeLocation
+from libcloud.compute.base import NodeImage, Node
+from libcloud.compute.types import Provider,NodeState
 
 import uuid
 import socket
@@ -40,7 +40,7 @@ class DummyNodeDriver(NodeDriver):
     This is a fake driver which appears to always create or destroy
     nodes successfully.
 
-    >>> from libcloud.drivers.dummy import DummyNodeDriver
+    >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
     >>> driver = DummyNodeDriver(0)
     >>> node=driver.create_node()
     >>> node.public_ip[0]
@@ -110,7 +110,7 @@ class DummyNodeDriver(NodeDriver):
         List the nodes known to a particular driver;
         There are two default nodes created at the beginning
 
-        >>> from libcloud.drivers.dummy import DummyNodeDriver
+        >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
         >>> driver = DummyNodeDriver(0)
         >>> node_list=driver.list_nodes()
         >>> sorted([node.name for node in node_list ])
@@ -135,10 +135,10 @@ class DummyNodeDriver(NodeDriver):
         Sets the node state to rebooting; in this dummy driver always
         returns True as if the reboot had been successful.
 
-        >>> from libcloud.drivers.dummy import DummyNodeDriver
+        >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
         >>> driver = DummyNodeDriver(0)
         >>> node=driver.create_node()
-        >>> from libcloud.types import NodeState
+        >>> from libcloud.compute.types import NodeState
         >>> node.state == NodeState.RUNNING
         True
         >>> node.state == NodeState.REBOOTING
@@ -158,9 +158,9 @@ class DummyNodeDriver(NodeDriver):
         """
         Sets the node state to terminated and removes it from the node list
 
-        >>> from libcloud.drivers.dummy import DummyNodeDriver
+        >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
         >>> driver = DummyNodeDriver(0)
-        >>> from libcloud.types import NodeState
+        >>> from libcloud.compute.types import NodeState
         >>> node = [node for node in driver.list_nodes() if node.name == 'dummy-1'][0]
         >>> node.state == NodeState.RUNNING
         True
@@ -180,7 +180,7 @@ class DummyNodeDriver(NodeDriver):
         """
         Returns a list of images as a cloud provider might have
 
-        >>> from libcloud.drivers.dummy import DummyNodeDriver
+        >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
         >>> driver = DummyNodeDriver(0)
         >>> sorted([image.name for image in driver.list_images()])
         ['Slackware 4', 'Ubuntu 9.04', 'Ubuntu 9.10']
@@ -195,7 +195,7 @@ class DummyNodeDriver(NodeDriver):
         """
         Returns a list of node sizes as a cloud provider might have
 
-        >>> from libcloud.drivers.dummy import DummyNodeDriver
+        >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
         >>> driver = DummyNodeDriver(0)
         >>> sorted([size.ram for size in driver.list_sizes()])
         [128, 512, 4096, 8192]
@@ -236,7 +236,7 @@ class DummyNodeDriver(NodeDriver):
         """
         Returns a list of locations of nodes
 
-        >>> from libcloud.drivers.dummy import DummyNodeDriver
+        >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
         >>> driver = DummyNodeDriver(0)
         >>> sorted([loc.name + " in " + loc.country for loc in driver.list_locations()])
         ['Island Datacenter in FJ', 'London Loft in GB', "Paul's Room in US"]
@@ -261,7 +261,7 @@ class DummyNodeDriver(NodeDriver):
         Creates a dummy node; the node id is equal to the number of
         nodes in the node list
 
-        >>> from libcloud.drivers.dummy import DummyNodeDriver
+        >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
         >>> driver = DummyNodeDriver(0)
         >>> sorted([node.name for node in driver.list_nodes()])
         ['dummy-1', 'dummy-2']

@@ -18,7 +18,7 @@ import sys
 import unittest
 import httplib
 
-from libcloud.drivers.elastichosts import ElasticHostsBaseNodeDriver
+from libcloud.compute.drivers.elastichosts import ElasticHostsBaseNodeDriver
 
 from test import MockHttp
 from test.compute import TestCaseMixin

@@ -18,8 +18,8 @@ Provides base classes for working with drivers
 """
 import httplib, urllib
 import libcloud
-from libcloud.types import NodeState, DeploymentError
-from libcloud.ssh import SSHClient
+from libcloud.compute.types import NodeState, DeploymentError
+from libcloud.compute.ssh import SSHClient
 from libcloud.httplib_ssl import LibcloudHTTPSConnection
 from httplib import HTTPConnection as LibcloudHTTPConnection
 import time
@@ -43,7 +43,7 @@ class Node(object):
     You don't normally create a node object yourself; instead you use
     a driver and then have that create the node for you.
 
-    >>> from libcloud.drivers.dummy import DummyNodeDriver
+    >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
     >>> driver = DummyNodeDriver(0)
     >>> node = driver.create_node()
     >>> node.public_ip[0]
@@ -103,7 +103,7 @@ class Node(object):
         unlike a properly done system UUID, the same UUID may mean a
         different system install at a different time
 
-        >>> from libcloud.drivers.dummy import DummyNodeDriver
+        >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
         >>> driver = DummyNodeDriver(0)
         >>> node = driver.create_node()
         >>> node.get_uuid()
@@ -121,10 +121,10 @@ class Node(object):
 
         This calls the node's driver and reboots the node
 
-        >>> from libcloud.drivers.dummy import DummyNodeDriver
+        >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
         >>> driver = DummyNodeDriver(0)
         >>> node = driver.create_node()
-        >>> from libcloud.types import NodeState
+        >>> from libcloud.compute.types import NodeState
         >>> node.state == NodeState.RUNNING
         True
         >>> node.state == NodeState.REBOOTING
@@ -143,9 +143,9 @@ class Node(object):
 
         This calls the node's driver and destroys the node
 
-        >>> from libcloud.drivers.dummy import DummyNodeDriver
+        >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
         >>> driver = DummyNodeDriver(0)
-        >>> from libcloud.types import NodeState
+        >>> from libcloud.compute.types import NodeState
         >>> node = driver.create_node()
         >>> node.state == NodeState.RUNNING
         True
@@ -177,7 +177,7 @@ class NodeSize(object):
     N.B. Where a parameter is "unlimited" (for example bandwidth in
     Amazon) this will be given as 0.
 
-    >>> from libcloud.drivers.dummy import DummyNodeDriver
+    >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
     >>> driver = DummyNodeDriver(0)
     >>> size = driver.list_sizes()[0]
     >>> size.ram
@@ -210,7 +210,7 @@ class NodeImage(object):
     NodeImage objects are typically returned by the driver for the
     cloud provider in response to the list_images function
 
-    >>> from libcloud.drivers.dummy import DummyNodeDriver
+    >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
     >>> driver = DummyNodeDriver(0)
     >>> image = driver.list_images()[0]
     >>> image.name
@@ -242,7 +242,7 @@ class NodeLocation(object):
     """
     A physical location where nodes can be.
 
-    >>> from libcloud.drivers.dummy import DummyNodeDriver
+    >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
     >>> driver = DummyNodeDriver(0)
     >>> location = driver.list_locations()[0]
     >>> location.country
@@ -266,7 +266,7 @@ class NodeAuthSSHKey(object):
     normally be installed as root's public key on the node.
 
     >>> pubkey = '...' # read from file
-    >>> from libcloud.base import NodeAuthSSHKey
+    >>> from libcloud.compute.base import NodeAuthSSHKey
     >>> k = NodeAuthSSHKey(pubkey)
     >>> k
     <NodeAuthSSHKey>
@@ -844,9 +844,9 @@ class NodeDriver(object):
 
         See L{NodeDriver.create_node} for more keyword args.
 
-        >>> from libcloud.drivers.dummy import DummyNodeDriver
+        >>> from libcloud.compute.drivers.dummy import DummyNodeDriver
         >>> from libcloud.deployment import ScriptDeployment, MultiStepDeployment
-        >>> from libcloud.base import NodeAuthSSHKey
+        >>> from libcloud.compute.base import NodeAuthSSHKey
         >>> driver = DummyNodeDriver(0)
         >>> key = NodeAuthSSHKey('...') # read from file
         >>> script = ScriptDeployment("yum -y install emacs strace tcpdump")

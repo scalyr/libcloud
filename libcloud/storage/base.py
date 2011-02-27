@@ -23,8 +23,8 @@ import urllib
 from os.path import join as pjoin
 
 from libcloud import utils
-from libcloud.types import LibcloudError
-from libcloud.base import ConnectionKey
+from libcloud.compute.types import LibcloudError
+from libcloud.compute.base import ConnectionKey
 
 CHUNK_SIZE = 8096
 

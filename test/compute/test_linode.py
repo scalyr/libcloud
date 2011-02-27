@@ -21,8 +21,8 @@ import sys
 import unittest
 import httplib
 
-from libcloud.drivers.linode import LinodeNodeDriver
-from libcloud.base import Node, NodeAuthPassword
+from libcloud.compute.drivers.linode import LinodeNodeDriver
+from libcloud.compute.base import Node, NodeAuthPassword
 
 from test import MockHttp
 from test.compute import TestCaseMixin

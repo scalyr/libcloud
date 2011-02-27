@@ -15,10 +15,10 @@
 """
 Rackspace driver
 """
-from libcloud.types import NodeState, InvalidCredsError, \
+from libcloud.compute.types import NodeState, InvalidCredsError, \
   Provider, MalformedResponseError
-from libcloud.base import ConnectionUserAndKey, Response, NodeDriver, Node
-from libcloud.base import NodeSize, NodeImage, NodeLocation
+from libcloud.compute.base import ConnectionUserAndKey, Response, NodeDriver, Node
+from libcloud.compute.base import NodeSize, NodeImage, NodeLocation
 import os
 
 import base64

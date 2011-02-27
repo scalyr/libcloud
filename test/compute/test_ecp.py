@@ -16,8 +16,8 @@ import sys
 import unittest
 import httplib
 
-from libcloud.drivers.ecp import ECPNodeDriver
-from libcloud.types import NodeState
+from libcloud.compute.drivers.ecp import ECPNodeDriver
+from libcloud.compute.types import NodeState
 
 from test import MockHttp
 from test.compute import TestCaseMixin

@@ -20,8 +20,8 @@ import sys
 from xml.etree import ElementTree as ET
 import xmlrpclib
 
-from libcloud.drivers.softlayer import SoftLayerNodeDriver as SoftLayer
-from libcloud.types import NodeState
+from libcloud.compute.drivers.softlayer import SoftLayerNodeDriver as SoftLayer
+from libcloud.compute.types import NodeState
 
 from test import MockHttp
 from test.compute import TestCaseMixin

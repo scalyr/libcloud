@@ -16,8 +16,8 @@ import sys
 import unittest
 import httplib
 
-from libcloud.drivers.ec2 import EC2NodeDriver, EC2APSENodeDriver, IdempotentParamError
-from libcloud.base import Node, NodeImage, NodeSize, NodeLocation
+from libcloud.compute.drivers.ec2 import EC2NodeDriver, EC2APSENodeDriver, IdempotentParamError
+from libcloud.compute.base import Node, NodeImage, NodeSize, NodeLocation
 
 from test import MockHttp
 from test.compute import TestCaseMixin

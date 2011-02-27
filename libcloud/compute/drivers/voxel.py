@@ -17,9 +17,9 @@
 Voxel VoxCloud driver
 """
 from libcloud.providers import Provider
-from libcloud.types import NodeState, InvalidCredsError
-from libcloud.base import Node, Response, ConnectionUserAndKey, NodeDriver
-from libcloud.base import NodeSize, NodeImage, NodeLocation
+from libcloud.compute.types import NodeState, InvalidCredsError
+from libcloud.compute.base import Node, Response, ConnectionUserAndKey, NodeDriver
+from libcloud.compute.base import NodeSize, NodeImage, NodeLocation
 import datetime
 import hashlib
 from xml.etree import ElementTree as ET

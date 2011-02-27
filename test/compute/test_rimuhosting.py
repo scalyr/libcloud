@@ -18,7 +18,7 @@ import sys
 import unittest
 import httplib
 
-from libcloud.drivers.rimuhosting import RimuHostingNodeDriver
+from libcloud.compute.drivers.rimuhosting import RimuHostingNodeDriver
 
 from test import MockHttp
 from test.compute import TestCaseMixin

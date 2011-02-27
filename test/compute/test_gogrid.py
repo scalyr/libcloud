@@ -22,9 +22,9 @@ try:
 except ImportError:
     import simplejson as json
 
-from libcloud.types import LibcloudError, InvalidCredsError
-from libcloud.drivers.gogrid import GoGridNodeDriver
-from libcloud.base import Node, NodeImage, NodeSize, NodeLocation
+from libcloud.compute.types import LibcloudError, InvalidCredsError
+from libcloud.compute.drivers.gogrid import GoGridNodeDriver
+from libcloud.compute.base import Node, NodeImage, NodeSize, NodeLocation
 
 from test import MockHttp
 from test.compute import TestCaseMixin

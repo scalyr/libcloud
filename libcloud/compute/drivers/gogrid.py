@@ -16,10 +16,10 @@
 GoGrid driver
 """
 from libcloud.providers import Provider
-from libcloud.types import NodeState, MalformedResponseError,\
+from libcloud.compute.types import NodeState, MalformedResponseError,\
         InvalidCredsError, LibcloudError
-from libcloud.base import Node, ConnectionUserAndKey, Response, NodeDriver
-from libcloud.base import NodeSize, NodeImage, NodeLocation
+from libcloud.compute.base import Node, ConnectionUserAndKey, Response, NodeDriver
+from libcloud.compute.base import NodeSize, NodeImage, NodeLocation
 import time
 import hashlib
 

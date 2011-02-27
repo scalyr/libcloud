@@ -15,8 +15,8 @@
 """
 Driver for the IBM Developer Cloud.
 """
-from libcloud.types import NodeState, InvalidCredsError, Provider
-from libcloud.base import Response, ConnectionUserAndKey, NodeDriver, Node, NodeImage, NodeSize, NodeLocation, NodeAuthSSHKey
+from libcloud.compute.types import NodeState, InvalidCredsError, Provider
+from libcloud.compute.base import Response, ConnectionUserAndKey, NodeDriver, Node, NodeImage, NodeSize, NodeLocation, NodeAuthSSHKey
 import base64, urllib
 
 from xml.etree import ElementTree as ET

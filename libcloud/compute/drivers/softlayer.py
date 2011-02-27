@@ -20,8 +20,8 @@ import time
 import xmlrpclib
 
 import libcloud
-from libcloud.types import Provider, InvalidCredsError, NodeState, LibcloudError
-from libcloud.base import NodeDriver, Node, NodeLocation, NodeSize, NodeImage
+from libcloud.compute.types import Provider, InvalidCredsError, NodeState, LibcloudError
+from libcloud.compute.base import NodeDriver, Node, NodeLocation, NodeSize, NodeImage
 
 DATACENTERS = {
     'sea01': {'country': 'US'},

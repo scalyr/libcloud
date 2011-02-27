@@ -15,9 +15,9 @@
 """
 Brightbox Driver
 """
-from libcloud.types import Provider, NodeState, InvalidCredsError
-from libcloud.base import ConnectionUserAndKey, Response, NodeDriver
-from libcloud.base import Node, NodeImage, NodeSize, NodeLocation
+from libcloud.compute.types import Provider, NodeState, InvalidCredsError
+from libcloud.compute.base import ConnectionUserAndKey, Response, NodeDriver
+from libcloud.compute.base import Node, NodeImage, NodeSize, NodeLocation
 import httplib
 import base64
 try:
