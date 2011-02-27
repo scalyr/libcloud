@@ -16,6 +16,9 @@
 Base types used by other parts of libcloud
 """
 
+from libcloud.common.types import LibcloudError, MalformedResponseError
+from libcloud.common.types import InvalidCredsError, InvalidCredsException
+
 class Provider(object):
     """
     Defines for each of the supported providers
@@ -82,36 +85,6 @@ class NodeState(object):
     TERMINATED = 2
     PENDING = 3
     UNKNOWN = 4
-
-class LibcloudError(Exception):
-    """The base class for other libcloud exceptions"""
-    def __init__(self, value, driver=None):
-        self.value = value
-        self.driver = driver
-
-    def __str__(self):
-        return "<LibcloudError in "+ repr(self.driver) +" "+ repr(self.value) + ">"
-
-class MalformedResponseError(LibcloudError):
-    """Exception for the cases when a provider returns a malformed
-    response, e.g. you request JSON and provider returns 
-    '<h3>something</h3>' due to some error on their side."""
-    def __init__(self, value, body=None, driver=None):
-      self.value = value
-      self.driver = driver
-      self.body = body
-    def __str__(self):
-        return "<MalformedResponseException in "+ repr(self.driver) +" "+ repr(self.value) +">: "+ repr(self.body)
-
-class InvalidCredsError(LibcloudError):
-    """Exception used when invalid credentials are used on a provider."""
-    def __init__(self, value='Invalid credentials with the provider', driver=None):
-        self.value = value
-        self.driver = driver
-    def __str__(self):
-        return repr(self.value)
-"""Deprecated alias of L{InvalidCredsError}"""
-InvalidCredsException = InvalidCredsError
 
 class DeploymentError(LibcloudError):
     """

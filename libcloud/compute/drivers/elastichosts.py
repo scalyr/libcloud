@@ -25,7 +25,8 @@ except:
     import simplejson as json
 
 from libcloud.common.base import ConnectionUserAndKey, Response
-from libcloud.compute.types import Provider, NodeState, InvalidCredsError, MalformedResponseError
+from libcloud.common.types import InvalidCredsError, MalformedResponseError
+from libcloud.compute.types import Provider, NodeState
 from libcloud.compute.base import NodeDriver, NodeSize, Node
 from libcloud.compute.base import NodeImage
 from libcloud.compute.deployment import ScriptDeployment, SSHKeyDeployment, MultiStepDeployment

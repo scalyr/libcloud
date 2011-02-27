@@ -20,7 +20,9 @@ import time
 import xmlrpclib
 
 import libcloud
-from libcloud.compute.types import Provider, InvalidCredsError, NodeState, LibcloudError
+
+from libcloud.common.types import InvalidCredsError, LibcloudError
+from libcloud.compute.types import Provider, NodeState
 from libcloud.compute.base import NodeDriver, Node, NodeLocation, NodeSize, NodeImage
 
 DATACENTERS = {

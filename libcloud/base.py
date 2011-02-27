@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from libcloud.common.base import RawResponse, Response, LoggingConnection
+from libcloud.common.base import LoggingHTTPSConnection, LoggingHTTPConnection
+from libcloud.common.base import ConnectionKey, ConnectionUserAndKey
 from libcloud.compute.base import Node, NodeSize, NodeImage
 from libcloud.compute.base import NodeLocation, NodeAuthSSHKey, NodeAuthPassword
 from libcloud.compute.base import NodeDriver, is_private_subnet

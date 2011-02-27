@@ -22,7 +22,7 @@ try:
 except ImportError:
     import simplejson as json
 
-from libcloud.compute.types import LibcloudError, InvalidCredsError
+from libcloud.common.types import LibcloudError, InvalidCredsError
 from libcloud.compute.drivers.gogrid import GoGridNodeDriver
 from libcloud.compute.base import Node, NodeImage, NodeSize, NodeLocation
 

@@ -15,7 +15,7 @@
 
 import os.path
 
-from libcloud.compute.types import MalformedResponseError, LibcloudError
+from libcloud.common.types import MalformedResponseError, LibcloudError
 
 from libcloud.storage.providers import Provider
 from libcloud.storage.base import Object, Container, StorageDriver

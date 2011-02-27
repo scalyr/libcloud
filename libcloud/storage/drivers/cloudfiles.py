@@ -24,7 +24,7 @@ except:
     import simplejson as json
 
 from libcloud import utils
-from libcloud.compute.types import MalformedResponseError, LibcloudError
+from libcloud.common.types import MalformedResponseError, LibcloudError
 from libcloud.compute.types import InvalidCredsError
 from libcloud.compute.base import ConnectionUserAndKey, Response
 

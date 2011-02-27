@@ -21,7 +21,8 @@ import time
 import base64
 
 from libcloud.common.base import ConnectionUserAndKey, Response
-from libcloud.compute.types import Provider, NodeState, InvalidCredsError
+from libcloud.common.types import InvalidCredsError
+from libcloud.compute.types import NodeState, Provider
 from libcloud.compute.base import NodeDriver, NodeSize, Node
 from libcloud.compute.base import NodeImage
 

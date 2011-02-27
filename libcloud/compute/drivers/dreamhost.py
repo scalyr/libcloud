@@ -22,9 +22,10 @@ except:
     import simplejson as json
 
 from libcloud.common.base import ConnectionKey, Response
+from libcloud.common.types import InvalidCredsError
 from libcloud.compute.base import Node, NodeDriver, NodeLocation, NodeSize
 from libcloud.compute.base import NodeImage
-from libcloud.compute.types import Provider, NodeState, InvalidCredsError
+from libcloud.compute.types import Provider, NodeState
 
 """
 DreamHost Private Servers can be resized on the fly, but Libcloud doesn't

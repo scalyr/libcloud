@@ -24,8 +24,9 @@ from xml.etree import ElementTree as ET
 from xml.parsers.expat import ExpatError
 
 from libcloud.common.base import Response, ConnectionUserAndKey
+from libcloud.common.types import InvalidCredsError
 from libcloud.compute.providers import Provider
-from libcloud.compute.types import NodeState, InvalidCredsError
+from libcloud.compute.types import NodeState
 from libcloud.compute.base import Node, NodeDriver, NodeLocation
 from libcloud.compute.base import NodeSize, NodeImage, NodeAuthPassword
 

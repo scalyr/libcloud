@@ -16,11 +16,8 @@ import sys
 import unittest
 import httplib
 
-from libcloud.compute.types import InvalidCredsError
-from libcloud.compute.drivers.rackspace import (
-    RackspaceNodeDriver as Rackspace,
-    RackspaceSharedIpGroup,
-    RackspaceNodeIpAddresses)
+from libcloud.common.types import InvalidCredsError
+from libcloud.compute.drivers.rackspace import RackspaceNodeDriver as Rackspace
 from libcloud.compute.base import Node, NodeImage, NodeSize
 
 from test import MockHttp

@@ -17,8 +17,8 @@ import httplib
 from cStringIO import StringIO
 from urllib2 import urlparse
 from cgi import parse_qs
-from libcloud.compute.base import Node, NodeImage, NodeLocation
 
+from libcloud.compute.base import Node, NodeImage, NodeLocation
 
 class TestCaseMixin(object):
 

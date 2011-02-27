@@ -21,8 +21,9 @@ try:
 except: 
   import simplejson as json
 
+from libcloud.common.types import InvalidCredsError
 from libcloud.compute.drivers.dreamhost import DreamhostNodeDriver
-from libcloud.compute.types import NodeState, InvalidCredsError
+from libcloud.compute.types import NodeState
 
 from test import MockHttp
 from test.compute import TestCaseMixin

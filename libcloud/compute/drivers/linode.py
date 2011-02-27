@@ -37,7 +37,8 @@ except:
     import simplejson as json
 
 from libcloud.common.base import ConnectionKey, Response
-from libcloud.compute.types import Provider, NodeState, InvalidCredsError, MalformedResponseError
+from libcloud.common.types import InvalidCredsError, MalformedResponseError
+from libcloud.compute.types import Provider, NodeState
 from libcloud.compute.base import NodeDriver, NodeSize, Node, NodeLocation
 from libcloud.compute.base import NodeAuthPassword, NodeAuthSSHKey
 from libcloud.compute.base import NodeImage
