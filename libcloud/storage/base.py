@@ -59,7 +59,7 @@ class Object(object):
 
         self.name = name
         self.size = size
-        self.hash = None
+        self.hash = hash
         self.container = container
         self.extra = extra or {}
         self.meta_data = meta_data or {}
