@@ -60,3 +60,18 @@ def deprecated_warning(module):
                        ' This path will be fully removed in libcloud %s.' % \
                        (module, OLD_API_REMOVE_VERSION),
                   category=DeprecationWarning)
+
+def get_driver(drivers, provider):
+    """
+    Get a driver.
+
+    @param drivers: Dictionary containing valid providers.
+    @param provider: Id of provider to get driver
+    @type provider: L{libcloud.types.Provider}
+    """
+    if provider in drivers:
+        mod_name, driver_name = drivers[provider]
+        _mod = __import__(mod_name, globals(), locals(), [driver_name])
+        return getattr(_mod, driver_name)
+
+    raise AttributeError('Provider %s does not exist' % (provider))

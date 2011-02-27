@@ -16,6 +16,7 @@
 Provider related utilities
 """
 
+from libcloud.utils import get_driver as get_provider_driver
 from libcloud.compute.types import Provider
 
 DRIVERS = {
@@ -70,11 +71,4 @@ DRIVERS = {
 }
 
 def get_driver(provider):
-    """Gets a driver
-    @param provider: Id of provider to get driver
-    @type provider: L{libcloud.types.Provider}
-    """
-    if provider in DRIVERS:
-        mod_name, driver_name = DRIVERS[provider]
-        _mod = __import__(mod_name, globals(), locals(), [driver_name])
-        return getattr(_mod, driver_name)
+    return get_provider_driver(DRIVERS, provider)
