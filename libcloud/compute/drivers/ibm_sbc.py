@@ -17,7 +17,7 @@ Driver for the IBM Developer Cloud.
 """
 import base64, urllib
 
-from libcloud.base import Response, ConnectionUserAndKey
+from libcloud.common.base import Response, ConnectionUserAndKey
 from libcloud.compute.types import NodeState, InvalidCredsError, Provider
 from libcloud.compute.base import NodeDriver, Node, NodeImage, NodeSize, NodeLocation, NodeAuthSSHKey
 

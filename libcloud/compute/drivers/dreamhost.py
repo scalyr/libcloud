@@ -21,7 +21,7 @@ try:
 except:
     import simplejson as json
 
-from libcloud.base import ConnectionKey, Response
+from libcloud.common.base import ConnectionKey, Response
 from libcloud.compute.base import Node, NodeDriver, NodeLocation, NodeSize
 from libcloud.compute.base import NodeImage
 from libcloud.compute.types import Provider, NodeState, InvalidCredsError

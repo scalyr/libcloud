@@ -25,7 +25,7 @@ import os
 import socket
 import struct
 
-from libcloud.base import ConnectionKey, ConnectionUserAndKey
+from libcloud.common.base import ConnectionKey, ConnectionUserAndKey
 from libcloud.compute.types import NodeState, DeploymentError
 from libcloud.compute.ssh import SSHClient
 from libcloud.httplib_ssl import LibcloudHTTPSConnection

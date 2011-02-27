@@ -23,12 +23,11 @@ from base64 import b64encode
 import hashlib
 from xml.etree import ElementTree as ET
 
-from libcloud.providers import Provider
-from libcloud.base import ConnectionUserAndKey, Response
+from libcloud.common.base import ConnectionUserAndKey, Response
+from libcloud.compute.providers import Provider
 from libcloud.compute.types import NodeState, InvalidCredsError
 from libcloud.compute.base import NodeDriver, Node, NodeLocation
 from libcloud.compute.base import NodeImage, NodeSize
-
 
 API_HOST = ''
 API_PORT = (4567, 443)

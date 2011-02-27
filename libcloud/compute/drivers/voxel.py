@@ -21,8 +21,8 @@ import hashlib
 
 from xml.etree import ElementTree as ET
 
-from libcloud.base import Response, ConnectionUserAndKey
-from libcloud.providers import Provider
+from libcloud.common.base import Response, ConnectionUserAndKey
+from libcloud.compute.providers import Provider
 from libcloud.compute.types import NodeState, InvalidCredsError
 from libcloud.compute.base import Node, NodeDriver
 from libcloud.compute.base import NodeSize, NodeImage, NodeLocation

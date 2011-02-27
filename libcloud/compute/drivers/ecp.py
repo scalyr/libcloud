@@ -29,7 +29,7 @@ try:
 except:
     import simplejson as json
 
-from libcloud.base import Response, ConnectionUserAndKey
+from libcloud.common.base import Response, ConnectionUserAndKey
 from libcloud.compute.base import NodeDriver, NodeSize, NodeLocation
 from libcloud.compute.base import NodeImage, Node
 from libcloud.compute.types import Provider, NodeState, InvalidCredsError

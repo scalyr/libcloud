@@ -23,7 +23,7 @@ from urlparse import urlparse
 from xml.etree import ElementTree as ET
 from xml.parsers.expat import ExpatError
 
-from libcloud.base import Response, ConnectionUserAndKey
+from libcloud.common.base import Response, ConnectionUserAndKey
 from libcloud.compute.providers import Provider
 from libcloud.compute.types import NodeState, InvalidCredsError
 from libcloud.compute.base import Node, NodeDriver, NodeLocation

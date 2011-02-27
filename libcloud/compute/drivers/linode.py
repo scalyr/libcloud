@@ -26,15 +26,21 @@ Alternate bindings for reference    http://github.com/tjfontaine/linode-python
 Linode(R) is a registered trademark of Linode, LLC.
 
 """
+import itertools
+import os
 
+from copy import copy
+
+try:
+    import json
+except:
+    import simplejson as json
+
+from libcloud.common.base import ConnectionKey, Response
 from libcloud.compute.types import Provider, NodeState, InvalidCredsError, MalformedResponseError
-from libcloud.base import ConnectionKey, Response
 from libcloud.compute.base import NodeDriver, NodeSize, Node, NodeLocation
 from libcloud.compute.base import NodeAuthPassword, NodeAuthSSHKey
 from libcloud.compute.base import NodeImage
-from copy import copy
-import itertools
-import os
 
 # Where requests go - in beta situations, this information may change.
 LINODE_API = "api.linode.com"
@@ -52,11 +58,6 @@ LINODE_PLAN_IDS = {512:'1',
                  12288:'8',
                  16384:'9',
                  20480:'10'}
-
-# JSON is included in the standard library starting with Python 2.6.  For 2.5
-# and 2.4, there's a simplejson egg at: http://pypi.python.org/pypi/simplejson
-try: import json
-except: import simplejson as json
 
 
 class LinodeException(Exception):
