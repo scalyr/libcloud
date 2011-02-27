@@ -14,16 +14,15 @@
 # limitations under the License.
 
 import os.path
+import random
 
-from libcloud.common.types import MalformedResponseError, LibcloudError
+from libcloud.common.types import LibcloudError
 
-from libcloud.storage.providers import Provider
 from libcloud.storage.base import Object, Container, StorageDriver
 from libcloud.storage.types import ContainerAlreadyExistsError
 from libcloud.storage.types import ContainerDoesNotExistError
 from libcloud.storage.types import ContainerIsNotEmptyError
 from libcloud.storage.types import ObjectDoesNotExistError
-from libcloud.storage.types import ObjectHashMismatchError
 
 
 class DummyFileObject(file):
@@ -31,10 +30,10 @@ class DummyFileObject(file):
         self._yield_count = yield_count
         self._chunk_len = chunk_len
 
-    def read(size):
+    def read(self, size):
         i = 0
 
-        while i < yield_count:
+        while i < self._yield_count:
             yield self._get_chunk(self._chunk_len)
             i += 1
 

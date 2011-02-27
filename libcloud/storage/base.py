@@ -19,12 +19,11 @@ from __future__ import with_statement
 import os
 import os.path
 import hashlib
-import urllib
 from os.path import join as pjoin
 
 from libcloud import utils
-from libcloud.compute.types import LibcloudError
-from libcloud.base import ConnectionKey
+from libcloud.common.types import LibcloudError
+from libcloud.common.base import ConnectionKey
 
 CHUNK_SIZE = 8096
 
@@ -82,7 +81,6 @@ class Object(object):
         return '<Object: name=%s, size=%s, hash=%s, provider=%s ...>' % \
         (self.name, self.size, self.hash, self.driver.name)
 
-
 class Container(object):
     """
     Represents a container (bucket) which can hold multiple objects.
@@ -132,7 +130,6 @@ class Container(object):
 
     def __repr__(self):
         return '<Container: name=%s, provider=%s>' % (self.name, self.driver.name)
-
 
 class StorageDriver(object):
     """

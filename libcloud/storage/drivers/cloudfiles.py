@@ -25,8 +25,8 @@ except:
 
 from libcloud import utils
 from libcloud.common.types import MalformedResponseError, LibcloudError
-from libcloud.compute.types import InvalidCredsError
-from libcloud.compute.base import ConnectionUserAndKey, Response
+from libcloud.common.types import InvalidCredsError
+from libcloud.common.base import ConnectionUserAndKey, Response
 
 from libcloud.storage.providers import Provider
 from libcloud.storage.base import Object, Container, StorageDriver
@@ -184,8 +184,8 @@ class CloudFilesStorageDriver(StorageDriver):
             container_count = response.headers.get('x-account-container-count', 'unknown')
             object_count = response.headers.get('x-account-object-count', 'unknown')
             bytes_used = response.headers.get('x-account-bytes-used', 'unknown')
-           
-           return { 'container_count': int(container_count), 
+
+            return { 'container_count': int(container_count),
                       'object_count': int(object_count),
                       'bytes_used': int(bytes_used) }
 

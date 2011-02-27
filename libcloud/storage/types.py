@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from libcloud.compute.types import LibcloudError
+from libcloud.common.types import LibcloudError
 
 class Provider(object):
     """
@@ -27,7 +27,6 @@ class Provider(object):
     CLOUDFILES_US = 1
     CLOUDFILES_UK = 2
 
-
 class ContainerError(LibcloudError):
     error_type = 'ContainerError'
 
@@ -38,7 +37,6 @@ class ContainerError(LibcloudError):
     def __str__(self):
         return '<%s in %s, container = %s>' % (self.error_type, repr(self.driver),
                                           self.container_name)
-
 
 class ObjectError(LibcloudError):
     error_type = 'ContainerError'
@@ -65,4 +63,3 @@ class ObjectDoesNotExistError(ObjectError):
 
 class ObjectHashMismatchError(ObjectError):
     error_type = 'ObjectHashMismatchError'
-
