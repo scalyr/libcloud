@@ -25,7 +25,7 @@ from libcloud.compute.types import NodeState
 
 from test import MockHttp
 from test.compute import TestCaseMixin
-from test.file_fixtures import FileFixtures
+from test.file_fixtures import ComputeFileFixtures
 
 from test.secrets import SOFTLAYER_USER, SOFTLAYER_APIKEY
 
@@ -69,7 +69,7 @@ class SoftLayerTests(unittest.TestCase):
         self.assertEqual(sizes[0].id, 'sl1')
 
 class SoftLayerMockHttp(MockHttp):
-    fixtures = FileFixtures('softlayer')
+    fixtures = ComputeFileFixtures('softlayer')
 
     def _xmlrpc_v3_SoftLayer_Account_getVirtualGuests(self, method, url, body, headers):
         body = self.fixtures.load('v3_SoftLayer_Account_getVirtualGuests.xml')

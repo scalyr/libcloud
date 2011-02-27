@@ -24,7 +24,7 @@ from libcloud.compute.base import Node, NodeImage, NodeSize
 
 from test import MockHttp
 from test.compute import TestCaseMixin
-from test.file_fixtures import FileFixtures
+from test.file_fixtures import ComputeFileFixtures
 
 from test.secrets import OPENNEBULA_USER, OPENNEBULA_KEY
 
@@ -74,7 +74,7 @@ class OpenNebulaTests(unittest.TestCase, TestCaseMixin):
 
 class OpenNebulaMockHttp(MockHttp):
 
-    fixtures = FileFixtures('opennebula')
+    fixtures = ComputeFileFixtures('opennebula')
 
     def _compute(self, method, url, body, headers):
         if method == 'GET':

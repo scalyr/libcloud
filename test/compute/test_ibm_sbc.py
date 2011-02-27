@@ -21,7 +21,7 @@ from libcloud.compute.base import Node, NodeImage, NodeSize, NodeLocation
 
 from test import MockHttp
 from test.compute import TestCaseMixin
-from test.file_fixtures import FileFixtures
+from test.file_fixtures import ComputeFileFixtures
 from test.secrets import IBM_USER, IBM_SECRET
 
 class IBMTests(unittest.TestCase, TestCaseMixin):
@@ -152,7 +152,7 @@ class IBMTests(unittest.TestCase, TestCaseMixin):
             self.fail('test should have thrown')
 
 class IBMMockHttp(MockHttp):
-    fixtures = FileFixtures('ibm_sbc')
+    fixtures = ComputeFileFixtures('ibm_sbc')
 
     def _computecloud_enterprise_api_rest_20100331_instances(self, method, url, body, headers):
         body = self.fixtures.load('instances.xml')

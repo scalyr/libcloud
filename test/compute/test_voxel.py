@@ -20,7 +20,7 @@ from libcloud.compute.drivers.voxel import VoxelNodeDriver as Voxel
 from libcloud.compute.types import InvalidCredsError
 
 from test import MockHttp
-from test.file_fixtures import FileFixtures
+from test.file_fixtures import ComputeFileFixtures
 
 from test.secrets import VOXEL_KEY, VOXEL_SECRET
 
@@ -43,7 +43,7 @@ class VoxelTest(unittest.TestCase):
 
 class VoxelMockHttp(MockHttp):
 
-    fixtures = FileFixtures('voxel')
+    fixtures = ComputeFileFixtures('voxel')
 
     def _UNAUTHORIZED(self, method, url, body, headers):
         body = self.fixtures.load('unauthorized.xml')

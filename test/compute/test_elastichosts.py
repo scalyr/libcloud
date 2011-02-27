@@ -22,7 +22,7 @@ from libcloud.compute.drivers.elastichosts import ElasticHostsBaseNodeDriver
 
 from test import MockHttp
 from test.compute import TestCaseMixin
-from test.file_fixtures import FileFixtures
+from test.file_fixtures import ComputeFileFixtures
 
 class ElasticHostsTestCase(unittest.TestCase, TestCaseMixin):
     def setUp(self):
@@ -75,7 +75,7 @@ class ElasticHostsTestCase(unittest.TestCase, TestCaseMixin):
 
 class ElasticHostsHttp(MockHttp):
 
-    fixtures = FileFixtures('elastichosts')
+    fixtures = ComputeFileFixtures('elastichosts')
     
     def _servers_b605ca90_c3e6_4cee_85f8_a8ebdf8f9903_reset(self, method, url, body, headers):
          return (httplib.NO_CONTENT, body, {}, httplib.responses[httplib.NO_CONTENT])

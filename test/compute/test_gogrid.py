@@ -28,7 +28,7 @@ from libcloud.compute.base import Node, NodeImage, NodeSize, NodeLocation
 
 from test import MockHttp
 from test.compute import TestCaseMixin
-from test.file_fixtures import FileFixtures
+from test.file_fixtures import ComputeFileFixtures
 
 class GoGridTests(unittest.TestCase, TestCaseMixin):
 
@@ -134,7 +134,7 @@ class GoGridTests(unittest.TestCase, TestCaseMixin):
 
 class GoGridMockHttp(MockHttp):
 
-    fixtures = FileFixtures('gogrid')
+    fixtures = ComputeFileFixtures('gogrid')
 
     def _api_grid_image_list(self, method, url, body, headers):
         body = self.fixtures.load('image_list.json')

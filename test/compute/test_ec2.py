@@ -21,7 +21,7 @@ from libcloud.compute.base import Node, NodeImage, NodeSize, NodeLocation
 
 from test import MockHttp
 from test.compute import TestCaseMixin
-from test.file_fixtures import FileFixtures
+from test.file_fixtures import ComputeFileFixtures
 
 from test.secrets import EC2_ACCESS_ID, EC2_SECRET
 
@@ -158,7 +158,7 @@ class EC2Tests(unittest.TestCase, TestCaseMixin):
 
 class EC2MockHttp(MockHttp):
 
-    fixtures = FileFixtures('ec2')
+    fixtures = ComputeFileFixtures('ec2')
 
     def _DescribeInstances(self, method, url, body, headers):
         body = self.fixtures.load('describe_instances.xml')

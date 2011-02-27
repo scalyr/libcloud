@@ -23,7 +23,7 @@ from libcloud.compute.drivers.cloudsigma import str2dicts, str2list, dict2str
 
 from test import MockHttp
 from test.compute import TestCaseMixin
-from test.file_fixtures import FileFixtures
+from test.file_fixtures import ComputeFileFixtures
 
 
 class CloudSigmaTestCase(unittest.TestCase, TestCaseMixin):
@@ -129,7 +129,7 @@ class CloudSigmaTestCase(unittest.TestCase, TestCaseMixin):
         self.assertTrue(result.find('mem 1024') >= 0)
 
 class CloudSigmaHttp(MockHttp):
-    fixtures = FileFixtures('cloudsigma')
+    fixtures = ComputeFileFixtures('cloudsigma')
 
     def _drives_standard_info(self, method, url, body, headers):
         body = self.fixtures.load('drives_standard_info.txt')

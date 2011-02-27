@@ -22,7 +22,7 @@ from libcloud.compute.drivers.rimuhosting import RimuHostingNodeDriver
 
 from test import MockHttp
 from test.compute import TestCaseMixin
-from test.file_fixtures import FileFixtures
+from test.file_fixtures import ComputeFileFixtures
 
 class RimuHostingTest(unittest.TestCase, TestCaseMixin):
     def setUp(self):
@@ -74,7 +74,7 @@ class RimuHostingTest(unittest.TestCase, TestCaseMixin):
 
 class RimuHostingMockHttp(MockHttp):
 
-    fixtures = FileFixtures('rimuhosting')
+    fixtures = ComputeFileFixtures('rimuhosting')
 
     def _r_orders(self,method,url,body,headers):
         body = self.fixtures.load('r_orders.json')

@@ -22,7 +22,7 @@ from libcloud.compute.base import Node, NodeImage, NodeSize
 
 from test import MockHttp
 from test.compute import TestCaseMixin
-from test.file_fixtures import FileFixtures
+from test.file_fixtures import ComputeFileFixtures
 
 from test.secrets import RACKSPACE_USER, RACKSPACE_KEY
 
@@ -173,7 +173,7 @@ class RackspaceTests(unittest.TestCase, TestCaseMixin):
 
 class RackspaceMockHttp(MockHttp):
 
-    fixtures = FileFixtures('rackspace')
+    fixtures = ComputeFileFixtures('rackspace')
 
     # fake auth token response
     def _v1_0(self, method, url, body, headers):

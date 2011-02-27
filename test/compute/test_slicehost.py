@@ -24,7 +24,7 @@ from libcloud.compute.base import Node, NodeImage, NodeSize
 
 from test import MockHttp
 from test.compute import TestCaseMixin
-from test.file_fixtures import FileFixtures
+from test.file_fixtures import ComputeFileFixtures
 from test.secrets import SLICEHOST_KEY
 
 class SlicehostTest(unittest.TestCase, TestCaseMixin):
@@ -101,7 +101,7 @@ class SlicehostTest(unittest.TestCase, TestCaseMixin):
 
 class SlicehostMockHttp(MockHttp):
 
-    fixtures = FileFixtures('slicehost')
+    fixtures = ComputeFileFixtures('slicehost')
 
     def _slices_xml(self, method, url, body, headers):
         if method == 'POST':

@@ -21,7 +21,7 @@ from libcloud.compute.types import NodeState
 
 from test import MockHttp
 from test.compute import TestCaseMixin
-from test.file_fixtures import FileFixtures
+from test.file_fixtures import ComputeFileFixtures
 
 from test.secrets import ECP_USER_NAME, ECP_PASSWORD
 
@@ -81,7 +81,7 @@ class ECPTests(unittest.TestCase, TestCaseMixin):
 
 class ECPMockHttp(MockHttp):
 
-    fixtures = FileFixtures('ecp')
+    fixtures = ComputeFileFixtures('ecp')
 
     def _modules_hosting(self, method, url, body, headers):
         headers = {}

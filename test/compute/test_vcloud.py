@@ -23,7 +23,7 @@ from libcloud.compute.types import NodeState
 
 from test import MockHttp
 from test.compute import TestCaseMixin
-from test.file_fixtures import FileFixtures
+from test.file_fixtures import ComputeFileFixtures
 
 from test.secrets import TERREMARK_USER, TERREMARK_SECRET
 
@@ -80,7 +80,7 @@ class TerremarkTests(unittest.TestCase, TestCaseMixin):
 
 class TerremarkMockHttp(MockHttp):
 
-    fixtures = FileFixtures('terremark')
+    fixtures = ComputeFileFixtures('terremark')
 
     def _api_v0_8_login(self, method, url, body, headers):
         headers['set-cookie'] = 'vcloud-token=testtoken'

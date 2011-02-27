@@ -27,7 +27,7 @@ from libcloud.compute.types import NodeState
 
 from test import MockHttp
 from test.compute import TestCaseMixin
-from test.file_fixtures import FileFixtures
+from test.file_fixtures import ComputeFileFixtures
 from test.secrets import BRIGHTBOX_CLIENT_ID, BRIGHTBOX_CLIENT_SECRET
 
 
@@ -82,7 +82,7 @@ class BrightboxTest(unittest.TestCase, TestCaseMixin):
 
 
 class BrightboxMockHttp(MockHttp):
-    fixtures = FileFixtures('brightbox')
+    fixtures = ComputeFileFixtures('brightbox')
 
     def _token(self, method, url, body, headers):
         if method == 'POST':

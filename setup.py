@@ -25,7 +25,7 @@ libcloud.utils.SHOW_DEPRECATION_WARNING = False
 
 HTML_VIEWSOURCE_BASE = 'https://svn.apache.org/viewvc/incubator/libcloud/trunk'
 PROJECT_BASE_DIR = 'http://incubator.apache.org/libcloud/'
-TEST_PATHS = [ 'test/compute', 'test/storage' ]
+TEST_PATHS = [ 'test', 'test/compute', 'test/storage' ]
 
 class TestCommand(Command):
     user_options = []
