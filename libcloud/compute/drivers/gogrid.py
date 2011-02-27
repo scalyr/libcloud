@@ -15,20 +15,20 @@
 """
 GoGrid driver
 """
-from libcloud.providers import Provider
-from libcloud.compute.types import NodeState, MalformedResponseError,\
-        InvalidCredsError, LibcloudError
-from libcloud.compute.base import Node, ConnectionUserAndKey, Response, NodeDriver
-from libcloud.compute.base import NodeSize, NodeImage, NodeLocation
 import time
 import hashlib
 
-# JSON is included in the standard library starting with Python 2.6.  For 2.5
-# and 2.4, there's a simplejson egg at: http://pypi.python.org/pypi/simplejson
 try:
     import json
 except ImportError:
     import simplejson as json
+
+from libcloud.providers import Provider
+from libcloud.base import ConnectionUserAndKey, Response
+from libcloud.compute.types import NodeState, MalformedResponseError
+from libcloud.compute.types import InvalidCredsError, LibcloudError
+from libcloud.compute.base import Node, NodeDriver
+from libcloud.compute.base import NodeSize, NodeImage, NodeLocation
 
 HOST = 'api.gogrid.com'
 PORTS_BY_SECURITY = { True: 443, False: 80 }

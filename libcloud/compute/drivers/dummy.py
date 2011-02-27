@@ -17,13 +17,13 @@ Dummy Driver
 
 @note: This driver is out of date
 """
-from libcloud.compute.base import ConnectionKey, NodeDriver, NodeSize, NodeLocation
-from libcloud.compute.base import NodeImage, Node
-from libcloud.compute.types import Provider,NodeState
-
 import uuid
 import socket
 import struct
+
+from libcloud.base import ConnectionKey, NodeDriver, NodeSize, NodeLocation
+from libcloud.compute.base import NodeImage, Node
+from libcloud.compute.types import Provider,NodeState
 
 class DummyConnection(ConnectionKey):
     """

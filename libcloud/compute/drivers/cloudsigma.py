@@ -20,8 +20,8 @@ import re
 import time
 import base64
 
+from libcloud.base import ConnectionUserAndKey, Response
 from libcloud.compute.types import Provider, NodeState, InvalidCredsError
-from libcloud.compute.base import ConnectionUserAndKey, Response
 from libcloud.compute.base import NodeDriver, NodeSize, Node
 from libcloud.compute.base import NodeImage
 

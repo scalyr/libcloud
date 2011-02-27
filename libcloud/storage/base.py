@@ -24,7 +24,7 @@ from os.path import join as pjoin
 
 from libcloud import utils
 from libcloud.compute.types import LibcloudError
-from libcloud.compute.base import ConnectionKey
+from libcloud.base import ConnectionKey
 
 CHUNK_SIZE = 8096
 

@@ -15,17 +15,18 @@
 """
 VPS.net driver
 """
-from libcloud.providers import Provider
-from libcloud.compute.types import NodeState, InvalidCredsError
-from libcloud.compute.base import Node, Response, ConnectionUserAndKey, NodeDriver
-from libcloud.compute.base import NodeSize, NodeImage, NodeLocation
-
 import base64
 
-# JSON is included in the standard library starting with Python 2.6.  For 2.5
-# and 2.4, there's a simplejson egg at: http://pypi.python.org/pypi/simplejson
-try: import json
-except: import simplejson as json
+try:
+    import json
+except:
+    import simplejson as json
+
+from libcloud.base import ConnectionUserAndKey, Response
+from libcloud.providers import Provider
+from libcloud.compute.types import NodeState, InvalidCredsError
+from libcloud.compute.base import Node, NodeDriver
+from libcloud.compute.base import NodeSize, NodeImage, NodeLocation
 
 API_HOST = 'api.vps.net'
 API_VERSION = 'api10json'

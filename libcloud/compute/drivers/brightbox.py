@@ -15,11 +15,14 @@
 """
 Brightbox Driver
 """
-from libcloud.compute.types import Provider, NodeState, InvalidCredsError
-from libcloud.compute.base import ConnectionUserAndKey, Response, NodeDriver
-from libcloud.compute.base import Node, NodeImage, NodeSize, NodeLocation
 import httplib
 import base64
+
+from libcloud.base import ConnectionUserAndKey, Response
+from libcloud.compute.types import Provider, NodeState, InvalidCredsError
+from libcloud.compute.base import NodeDriver
+from libcloud.compute.base import Node, NodeImage, NodeSize, NodeLocation
+
 try:
     import json
 except ImportError:

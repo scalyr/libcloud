@@ -19,18 +19,16 @@ import re
 import time
 import base64
 
-from libcloud.compute.types import Provider, NodeState, InvalidCredsError, MalformedResponseError
-from libcloud.compute.base import ConnectionUserAndKey, Response
-from libcloud.compute.base import NodeDriver, NodeSize, Node
-from libcloud.compute.base import NodeImage
-from libcloud.deployment import ScriptDeployment, SSHKeyDeployment, MultiStepDeployment
-
-# JSON is included in the standard library starting with Python 2.6.  For 2.5
-# and 2.4, there's a simplejson egg at: http://pypi.python.org/pypi/simplejson
 try:
     import json
 except:
     import simplejson as json
+
+from libcloud.base import ConnectionUserAndKey, Response
+from libcloud.compute.types import Provider, NodeState, InvalidCredsError, MalformedResponseError
+from libcloud.compute.base import NodeDriver, NodeSize, Node
+from libcloud.compute.base import NodeImage
+from libcloud.compute.deployment import ScriptDeployment, SSHKeyDeployment, MultiStepDeployment
 
 # API end-points
 API_ENDPOINTS = {

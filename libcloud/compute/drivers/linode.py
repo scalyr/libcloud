@@ -28,7 +28,7 @@ Linode(R) is a registered trademark of Linode, LLC.
 """
 
 from libcloud.compute.types import Provider, NodeState, InvalidCredsError, MalformedResponseError
-from libcloud.compute.base import ConnectionKey, Response
+from libcloud.base import ConnectionKey, Response
 from libcloud.compute.base import NodeDriver, NodeSize, Node, NodeLocation
 from libcloud.compute.base import NodeAuthPassword, NodeAuthSSHKey
 from libcloud.compute.base import NodeImage

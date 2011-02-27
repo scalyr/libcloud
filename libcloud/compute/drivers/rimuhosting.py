@@ -15,17 +15,16 @@
 """
 RimuHosting Driver
 """
+try:
+    import json
+except:
+    import simplejson as json
+
+from libcloud.base import ConnectionUserAndKey, ConnectionKey, Response
 from libcloud.compute.types import Provider, NodeState, InvalidCredsError
-from libcloud.compute.base import ConnectionKey, Response, NodeAuthPassword
 from libcloud.compute.base import NodeDriver, NodeSize, Node, NodeLocation
-from libcloud.compute.base import NodeImage
+from libcloud.compute.base import NodeImage, NodeAuthPassword
 
-# JSON is included in the standard library starting with Python 2.6.  For 2.5
-# and 2.4, there's a simplejson egg at: http://pypi.python.org/pypi/simplejson
-try: import json
-except: import simplejson as json
-
-# Defaults
 API_CONTEXT = '/r'
 API_HOST = 'rimuhosting.com'
 API_PORT = (80,443)

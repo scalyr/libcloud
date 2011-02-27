@@ -14,16 +14,15 @@
 # limitations under the License.
 import sys
 import unittest
-
-from libcloud.compute.drivers.dreamhost import DreamhostNodeDriver
-from libcloud.compute.types import NodeState, InvalidCredsError
-
 import httplib
 
 try:
   import json
 except: 
   import simplejson as json
+
+from libcloud.compute.drivers.dreamhost import DreamhostNodeDriver
+from libcloud.compute.types import NodeState, InvalidCredsError
 
 from test import MockHttp
 from test.compute import TestCaseMixin

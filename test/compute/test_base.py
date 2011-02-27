@@ -15,8 +15,9 @@
 import sys
 import unittest
 
-from libcloud.compute.base import Response, Node, NodeSize, NodeImage, NodeDriver
-from libcloud.compute.base import ConnectionKey, ConnectionUserAndKey
+from libcloud.base import Response
+from libcloud.base import ConnectionKey, ConnectionUserAndKey
+from libcloud.compute.base import Node, NodeSize, NodeImage, NodeDriver
 
 from test import MockResponse
 

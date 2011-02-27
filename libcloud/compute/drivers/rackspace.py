@@ -15,10 +15,6 @@
 """
 Rackspace driver
 """
-from libcloud.compute.types import NodeState, InvalidCredsError, \
-  Provider, MalformedResponseError
-from libcloud.compute.base import ConnectionUserAndKey, Response, NodeDriver, Node
-from libcloud.compute.base import NodeSize, NodeImage, NodeLocation
 import os
 
 import base64
@@ -26,6 +22,12 @@ import urlparse
 
 from xml.etree import ElementTree as ET
 from xml.parsers.expat import ExpatError
+
+from libcloud.base import ConnectionUserAndKey, Response
+from libcloud.compute.types import NodeState, InvalidCredsError, Provider
+from libcloud.compute.types import  MalformedResponseError
+from libcloud.compute.base import NodeDriver, Node
+from libcloud.compute.base import NodeSize, NodeImage, NodeLocation
 
 RACKSPACE_US_AUTH_HOST='auth.api.rackspacecloud.com'
 RACKSPACE_UK_AUTH_HOST='lon.auth.api.rackspacecloud.com'

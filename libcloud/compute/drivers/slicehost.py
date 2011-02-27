@@ -15,14 +15,16 @@
 """
 Slicehost Driver
 """
-from libcloud.compute.types import NodeState, Provider, InvalidCredsError, MalformedResponseError
-from libcloud.compute.base import ConnectionKey, Response, NodeDriver, Node
-from libcloud.compute.base import NodeSize, NodeImage, NodeLocation
-from libcloud.compute.base import is_private_subnet
 import base64
 import socket
+
 from xml.etree import ElementTree as ET
 from xml.parsers.expat import ExpatError
+
+from libcloud.base import ConnectionUserAndKey, ConnectionKey, Response
+from libcloud.compute.types import NodeState, Provider, InvalidCredsError, MalformedResponseError
+from libcloud.compute.base import NodeSize, NodeDriver, NodeImage, NodeLocation
+from libcloud.compute.base import Node, is_private_subnet
 
 class SlicehostResponse(Response):
 
