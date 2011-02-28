@@ -254,11 +254,43 @@ class StorageDriver(object):
 
     def upload_object(self, file_path, container, object_name, extra=None,
                       file_hash=None):
+        """
+        Upload an object.
+
+        @type file_path: C{str}
+        @param file_path: Path to the object on disk.
+
+        @type container: C{Container}
+        @param container: Destination container.
+
+        @type object_name: C{str}
+        @param object_name: Object name.
+
+        @type extra: C{dict}
+        @param extra: (optional) Extra attributes (driver specific).
+
+        @type file_hash: C{str}
+        @param file_hash: (optional) File hash. If provided object hash is
+                          on upload and if it doesn't match the one provided an
+                          exception is thrown.
+        """
         raise NotImplementedError, \
             'upload_object not implemented for this driver'
 
     def stream_object_data(self, iterator, container, object_name, extra=None):
-    def stream_object_data(self, iterator, object_name, extra=None):
+        """
+        @type iterator: C{object}
+        @param iterator: An object which implements the iterator interface.
+
+        @type container: C{Container}
+        @param container: Destination container.
+
+        @type object_name: C{str}
+        @param object_name: Object name.
+
+        @type extra: C{dict}
+        @param extra: (optional) Extra attributes (driver specific).
+        """
         raise NotImplementedError, \
             'stream_object_data not implemented for this driver'
 
