@@ -35,12 +35,15 @@ from libcloud.storage.types import ContainerDoesNotExistError
 from libcloud.storage.types import ContainerIsNotEmptyError
 from libcloud.storage.types import ObjectDoesNotExistError
 from libcloud.storage.types import ObjectHashMismatchError
+from libcloud.storage.types import InvalidContainerNameError
 
 AUTH_HOST_US = 'auth.api.rackspacecloud.com'
 AUTH_HOST_UK = 'lon.auth.api.rackspacecloud.com'
 API_VERSION = 'v1.0'
 
 class CloudFilesResponse(Response):
+
+    expected_content_types = [ 'application/json', 'text/plain' ]
 
     def success(self):
         i = int(self.status)
@@ -50,12 +53,25 @@ class CloudFilesResponse(Response):
         if not self.body:
             return None
 
-        try:
-            data = json.loads(self.body)
-        except:
-            raise MalformedResponseError('Failed to parse JSON',
-                                         body=self.body,
+        content_type = self.headers['content-type']
+        if content_type.find(';') != -1:
+            content_type = content_type.split(';')[0]
+
+        if content_type not in self.expected_content_types:
+            raise MalformedResponseError('Expected content-type %s but got %s' %
+                                         (str(self.expected_content_types),
+                                          content_type),
                                          driver=CloudFilesStorageDriver)
+
+        if content_type == 'application/json':
+            try:
+                data = json.loads(self.body)
+            except:
+                raise MalformedResponseError('Failed to parse JSON',
+                                             body=self.body,
+                                             driver=CloudFilesStorageDriver)
+        elif content_type == 'text/plain':
+            data = self.body
 
         return data
 
