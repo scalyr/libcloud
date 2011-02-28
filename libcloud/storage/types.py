@@ -63,3 +63,6 @@ class ObjectDoesNotExistError(ObjectError):
 
 class ObjectHashMismatchError(ObjectError):
     error_type = 'ObjectHashMismatchError'
+
+class InvalidContainerNameError(ContainerError):
+    error_type = 'InvalidContainerNameError'
