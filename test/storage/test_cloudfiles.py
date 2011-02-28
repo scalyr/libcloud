@@ -13,10 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import sys
+import copy
 import unittest
 import httplib
 
 from libcloud.storage.base import Container
+from libcloud.storage.types import ContainerAlreadyExistsError
 from libcloud.storage.drivers.cloudfiles import CloudFilesStorageDriver
 
 from test import MockHttp
@@ -78,56 +80,111 @@ class CloudFilesTests(unittest.TestCase):
         self.assertEqual(obj.meta_data['foo-bar'], 'test 1')
         self.assertEqual(obj.meta_data['bar-foo'], 'test 2')
 
+    def test_create_container_success(self):
+        container = self.driver.create_container(container_name='test_create_container')
+        self.assertTrue(isinstance(container, Container))
+        self.assertEqual(container.name, 'test_create_container')
+        self.assertEqual(container.extra['object_count'], 0)
+
+    def test_create_container_already_exists(self):
+        CloudFilesMockHttp.type = 'ALREADY_EXISTS'
+
+        try:
+            container = self.driver.create_container(container_name='test_create_container')
+        except ContainerAlreadyExistsError:
+            pass
+        else:
+            self.fail('Container already exists but an exception was not thrown')
+
+    def test_create_container_invalid_name(self):
+        try:
+            container = self.driver.create_container(container_name='invalid//name/')
+        except:
+            pass
+        else:
+            self.fail('Invalid name was provided (name contains slashes), but exception was not thrown')
+
+    def test_create_container_invalid_name(self):
+        name = ''.join([ 'x' for x in range(0, 257)])
+        try:
+            container = self.driver.create_container(container_name=name)
+        except:
+            pass
+        else:
+            self.fail('Invalid name was provided (name is too long), but exception was not thrown')
+
+    def test_delete_container(self):
+        pass
+
+    def download_object(self):
+        pass
+
+    def object_as_stream(self):
+        pass
+
+    def upload_object(self):
+        pass
+
+    def stream_object_data(self):
+        pass
+
+    def delete_object(self):
+        pass
+
 class CloudFilesMockHttp(MockHttp):
 
     fixtures = StorageFileFixtures('cloudfiles')
+    base_headers = { 'content-type': 'application/json; charset=UTF-8'}
 
     # fake auth token response
     def _v1_0(self, method, url, body, headers):
-        headers = {'x-server-management-url': 'https://servers.api.rackspacecloud.com/v1.0/slug',
-                   'x-auth-token': 'FE011C19',
-                   'x-cdn-management-url': 'https://cdn.clouddrive.com/v1/MossoCloudFS',
-                   'x-storage-token': 'FE011C19',
-                   'x-storage-url': 'https://storage4.clouddrive.com/v1/MossoCloudFS'}
+        headers = copy.deepcopy(self.base_headers)
+        headers.update({ 'x-server-management-url': 'https://servers.api.rackspacecloud.com/v1.0/slug',
+                         'x-auth-token': 'FE011C19',
+                         'x-cdn-management-url': 'https://cdn.clouddrive.com/v1/MossoCloudFS',
+                         'x-storage-token': 'FE011C19',
+                         'x-storage-url': 'https://storage4.clouddrive.com/v1/MossoCloudFS'})
         return (httplib.NO_CONTENT, "", headers, httplib.responses[httplib.NO_CONTENT])
 
     def _v1_MossoCloudFS_EMPTY(self, method, url, body, headers):
         body = self.fixtures.load('list_containers_empty.json')
-        return (httplib.OK, body, {}, httplib.responses[httplib.OK])
+        return (httplib.OK, body, self.base_headers, httplib.responses[httplib.OK])
 
     def _v1_MossoCloudFS(self, method, url, body, headers):
         if method == 'GET':
             # list_containers
             body = self.fixtures.load('list_containers.json')
             status_code = httplib.OK
-            headers = {}
+            headers = copy.deepcopy(self.base_headers)
         elif method == 'HEAD':
             # get_meta_data
             body = self.fixtures.load('meta_data.json')
             status_code = httplib.NO_CONTENT
-            headers = { 'x-account-container-count': 10,
-                        'x-account-object-count': 400,
-                        'x-account-bytes-used': 1234567
-                      }
+            headers = copy.deepcopy(self.base_headers)
+            headers.update({ 'x-account-container-count': 10,
+                             'x-account-object-count': 400,
+                             'x-account-bytes-used': 1234567
+                           })
         return (status_code, body, headers, httplib.responses[httplib.OK])
 
     def _v1_MossoCloudFS_test_container_EMPTY(self, method, url, body, headers):
         body = self.fixtures.load('list_container_objects_empty.json')
-        return (httplib.OK, body, {}, httplib.responses[httplib.OK])
+        return (httplib.OK, body, self.base_headers, httplib.responses[httplib.OK])
 
     def _v1_MossoCloudFS_test_container(self, method, url, body, headers):
         if method == 'GET':
             # list_container_objects
             body = self.fixtures.load('list_container_objects.json')
             status_code = httplib.OK
-            headers = {}
+            headers = copy.deepcopy(self.base_headers)
         elif method == 'HEAD':
             # get_container
             body = self.fixtures.load('list_container_objects_empty.json')
             status_code = httplib.NO_CONTENT
-            headers = { 'x-container-object-count': 800,
-                        'x-container-bytes-used': 1234568
-                      }
+            headers = copy.deepcopy(self.base_headers)
+            headers.update({ 'x-container-object-count': 800,
+                             'x-container-bytes-used': 1234568
+                           })
         return (status_code, body, headers, httplib.responses[httplib.OK])
 
     def _v1_MossoCloudFS_test_container_test_object(self, method, url, body,
@@ -136,12 +193,31 @@ class CloudFilesMockHttp(MockHttp):
             # get_object
             body = self.fixtures.load('list_container_objects_empty.json')
             status_code = httplib.NO_CONTENT
-            headers = { 'content-length': 555,
-                        'last-modified': 'Tue, 25 Jan 2011 22:01:49 GMT',
-                        'etag': '6b21c4a111ac178feacf9ec9d0c71f17',
-                        'x-object-meta-foo-bar': 'test 1',
-                        'x-object-meta-bar-foo': 'test 2',
-                        'content-type': 'application/zip'}
+            headers = self.base_headers
+            headers.update({ 'content-length': 555,
+                             'last-modified': 'Tue, 25 Jan 2011 22:01:49 GMT',
+                             'etag': '6b21c4a111ac178feacf9ec9d0c71f17',
+                             'x-object-meta-foo-bar': 'test 1',
+                             'x-object-meta-bar-foo': 'test 2',
+                             'content-type': 'application/zip'})
+        return (status_code, body, headers, httplib.responses[httplib.OK])
+
+    def _v1_MossoCloudFS_test_create_container(self, method, url, body, headers):
+        # test_create_container_success
+        body = self.fixtures.load('list_container_objects_empty.json')
+        headers = self.base_headers
+        headers.update({ 'content-length': 18,
+                         'date': 'Mon, 28 Feb 2011 07:52:57 GMT'
+                       })
+        status_code = httplib.CREATED
+        return (status_code, body, headers, httplib.responses[httplib.OK])
+
+    def _v1_MossoCloudFS_test_create_container_ALREADY_EXISTS(self, method, url, body, headers):
+        # test_create_container_already_exists
+        body = self.fixtures.load('list_container_objects_empty.json')
+        headers = self.base_headers
+        headers.update({ 'content-type': 'text/plain' })
+        status_code = httplib.ACCEPTED
         return (status_code, body, headers, httplib.responses[httplib.OK])
 
 if __name__ == '__main__':
