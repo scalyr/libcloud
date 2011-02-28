@@ -12,16 +12,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
+import os.path
 import sys
 import copy
 import unittest
 import httplib
 
-from libcloud.storage.base import Container
+import libcloud.utils
+
+from libcloud.common.types import LibcloudError
+from libcloud.storage.base import Container, Object
 from libcloud.storage.types import ContainerAlreadyExistsError
+from libcloud.storage.types import ContainerDoesNotExistError
+from libcloud.storage.types import ContainerIsNotEmptyError
+from libcloud.storage.types import ObjectDoesNotExistError
+from libcloud.storage.types import ObjectHashMismatchError
 from libcloud.storage.drivers.cloudfiles import CloudFilesStorageDriver
 
-from test import MockHttp
+from test import MockHttp, MockRawResponse
 from test.file_fixtures import StorageFileFixtures
 
 class CloudFilesTests(unittest.TestCase):
@@ -29,7 +38,9 @@ class CloudFilesTests(unittest.TestCase):
     def setUp(self):
         CloudFilesStorageDriver.connectionCls.conn_classes = (None,
                                                               CloudFilesMockHttp)
+        CloudFilesStorageDriver.connectionCls.rawResponseCls = CloudFilesMockRawResponse
         CloudFilesMockHttp.type = None
+        CloudFilesMockRawResponse.type = None
         self.driver = CloudFilesStorageDriver('dummy', 'dummy')
 
     def test_get_meta_data(self):
@@ -113,8 +124,30 @@ class CloudFilesTests(unittest.TestCase):
         else:
             self.fail('Invalid name was provided (name is too long), but exception was not thrown')
 
-    def test_delete_container(self):
-        pass
+    def test_delete_container_success(self):
+        container = Container(name='foo_bar_container', extra={}, driver=self)
+        result = self.driver.delete_container(container=container)
+        self.assertTrue(result)
+
+    def test_delete_container_not_found(self):
+        CloudFilesMockHttp.type = 'NOT_FOUND'
+        container = Container(name='foo_bar_container', extra={}, driver=self)
+        try:
+            result = self.driver.delete_container(container=container)
+        except ContainerDoesNotExistError:
+            pass
+        else:
+            self.fail('Container does not exist but an exception was not thrown')
+
+    def test_delete_container_not_empty(self):
+        CloudFilesMockHttp.type = 'NOT_EMPTY'
+        container = Container(name='foo_bar_container', extra={}, driver=self)
+        try:
+            result = self.driver.delete_container(container=container)
+        except ContainerIsNotEmptyError:
+            pass
+        else:
+            self.fail('Container is not empty but an exception was not thrown')
 
     def download_object(self):
         pass
@@ -122,19 +155,113 @@ class CloudFilesTests(unittest.TestCase):
     def object_as_stream(self):
         pass
 
-    def upload_object(self):
-        pass
+    def test_upload_object_success(self):
+        def upload_file(self, response, file_path, chunked=False,
+                     calculate_hash=True):
+            return True, 'hash343hhash89h932439jsaa89', 1000
+
+        old_func = CloudFilesStorageDriver._upload_file
+        CloudFilesStorageDriver._upload_file = upload_file
+        file_path = os.path.abspath(__file__)
+        container = Container(name='foo_bar_container', extra={}, driver=self)
+        object_name = 'foo_test_upload'
+        obj = self.driver.upload_object(file_path=file_path, container=container,
+                                        object_name=object_name)
+        self.assertEqual(obj.name, 'foo_test_upload')
+        self.assertEqual(obj.size, 1000)
+        CloudFilesStorageDriver._upload_file = old_func
+
+    def test_upload_object_invalid_hash(self):
+        def upload_file(self, response, file_path, chunked=False,
+                     calculate_hash=True):
+            return True, 'hash343hhash89h932439jsaa89', 1000
+
+        CloudFilesMockRawResponse.type = 'INVALID_HASH'
+
+        old_func = CloudFilesStorageDriver._upload_file
+        CloudFilesStorageDriver._upload_file = upload_file
+        file_path = os.path.abspath(__file__)
+        container = Container(name='foo_bar_container', extra={}, driver=self)
+        object_name = 'foo_test_upload'
+        try:
+            obj = self.driver.upload_object(file_path=file_path, container=container,
+                                            object_name=object_name,
+                                            file_hash='footest123')
+        except ObjectHashMismatchError:
+            pass
+        else:
+            self.fail('Invalid hash was returned but an exception was not thrown')
+        finally:
+            CloudFilesStorageDriver._upload_file = old_func
+
+    def test_upload_object_no_content_type(self):
+        def no_content_type(name):
+            return None, None
+
+        old_func = libcloud.utils.guess_file_mime_type
+        libcloud.utils.guess_file_mime_type = no_content_type
+        file_path = os.path.abspath(__file__)
+        container = Container(name='foo_bar_container', extra={}, driver=self)
+        object_name = 'foo_test_upload'
+        try:
+            obj = self.driver.upload_object(file_path=file_path, container=container,
+                                            object_name=object_name)
+        except AttributeError:
+            pass
+        else:
+            self.fail('File content type not provided but an exception was not thrown')
+        finally:
+            libcloud.utils.guess_file_mime_type = old_func
+
+    def test_upload_object_fail(self):
+        file_path = os.path.abspath(__file__)
+        container = Container(name='foo_bar_container', extra={}, driver=self)
+        object_name = 'foo_test_upload'
+        try:
+            obj = self.driver.upload_object(file_path=file_path, container=container,
+                                            object_name=object_name)
+        except LibcloudError:
+            pass
+        else:
+            self.fail('Timeout while uploading but an exception was not thrown')
 
     def stream_object_data(self):
         pass
 
-    def delete_object(self):
-        pass
+    def test_delete_object_success(self):
+        container = Container(name='foo_bar_container', extra={}, driver=self)
+        obj = Object(name='foo_bar_object', size=1000, hash=None, extra={},
+                     container=container, meta_data=None,
+                     driver=CloudFilesStorageDriver)
+        result = self.driver.delete_object(obj=obj)
+        self.assertTrue(result)
+
+    def test_delete_object_success(self):
+        CloudFilesMockHttp.type = 'NOT_FOUND'
+        container = Container(name='foo_bar_container', extra={}, driver=self)
+        obj = Object(name='foo_bar_object', size=1000, hash=None, extra={},
+                     container=container, meta_data=None,
+                     driver=CloudFilesStorageDriver)
+        try:
+            result = self.driver.delete_object(obj=obj)
+        except ObjectDoesNotExistError:
+            pass
+        else:
+            self.fail('Object does not exist but an exception was not thrown')
 
 class CloudFilesMockHttp(MockHttp):
 
     fixtures = StorageFileFixtures('cloudfiles')
     base_headers = { 'content-type': 'application/json; charset=UTF-8'}
+
+    def putrequest(self, method, action):
+        pass
+
+    def putheader(self, key, value):
+        pass
+
+    def endheaders(self):
+        pass
 
     # fake auth token response
     def _v1_0(self, method, url, body, headers):
@@ -219,6 +346,65 @@ class CloudFilesMockHttp(MockHttp):
         headers.update({ 'content-type': 'text/plain' })
         status_code = httplib.ACCEPTED
         return (status_code, body, headers, httplib.responses[httplib.OK])
+
+    def _v1_MossoCloudFS_foo_bar_container(self, method, url, body, headers):
+        if method == 'DELETE':
+            # test_delete_container_success
+            body = self.fixtures.load('list_container_objects_empty.json')
+            headers = self.base_headers
+            status_code = httplib.NO_CONTENT
+        return (status_code, body, headers, httplib.responses[httplib.OK])
+
+    def _v1_MossoCloudFS_foo_bar_container_NOT_FOUND(self, method, url, body, headers):
+        if method == 'DELETE':
+            # test_delete_container_not_found
+            body = self.fixtures.load('list_container_objects_empty.json')
+            headers = self.base_headers
+            status_code = httplib.NOT_FOUND
+        return (status_code, body, headers, httplib.responses[httplib.OK])
+
+    def _v1_MossoCloudFS_foo_bar_container_NOT_EMPTY(self, method, url, body, headers):
+        if method == 'DELETE':
+            # test_delete_container_not_empty
+            body = self.fixtures.load('list_container_objects_empty.json')
+            headers = self.base_headers
+            status_code = httplib.CONFLICT
+        return (status_code, body, headers, httplib.responses[httplib.OK])
+
+    def _v1_MossoCloudFS_foo_bar_container_foo_bar_object(self, method, url, body, headers):
+        if method == 'DELETE':
+            # test_delete_object_success
+            body = self.fixtures.load('list_container_objects_empty.json')
+            headers = self.base_headers
+            status_code = httplib.NO_CONTENT
+        return (status_code, body, headers, httplib.responses[httplib.OK])
+
+    def _v1_MossoCloudFS_foo_bar_container_foo_bar_object_NOT_FOUND(self, method, url, body, headers):
+        if method == 'DELETE':
+            # test_delete_object_success
+            body = self.fixtures.load('list_container_objects_empty.json')
+            headers = self.base_headers
+            status_code = httplib.NOT_FOUND
+        return (status_code, body, headers, httplib.responses[httplib.OK])
+
+class CloudFilesMockRawResponse(MockRawResponse):
+
+    fixtures = StorageFileFixtures('cloudfiles')
+    base_headers = { 'content-type': 'application/json; charset=UTF-8'}
+
+    def  _v1_MossoCloudFS_foo_bar_container_foo_test_upload(self, method, url, body, headers):
+        # test_object__upload_success
+        body = ''
+        header = copy.deepcopy(self.base_headers)
+        return (httplib.CREATED, body, headers, httplib.responses[httplib.OK])
+
+    def  _v1_MossoCloudFS_foo_bar_container_foo_test_upload_INVALID_HASH(self, method, url, body, headers):
+        # test_object_upload_invalid_hash
+        body = ''
+        print 'fuuu'
+        header = copy.deepcopy(self.base_headers)
+        return (httplib.UNPROCESSABLE_ENTITY, body, headers,
+                httplib.responses[httplib.OK])
 
 if __name__ == '__main__':
     sys.exit(unittest.main())
