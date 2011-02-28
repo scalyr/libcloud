@@ -13,10 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import httplib
+
 from cStringIO import StringIO
 from urllib2 import urlparse
 from cgi import parse_qs
 
+from libcloud.common.base import RawResponse
 
 class multipleresponse(object):
     """
@@ -63,8 +65,17 @@ class MockResponse(object):
     def msg(self):
         raise NotImplemented
 
+class BaseMockHttpObject(object):
+    def _get_method_name(self, type, use_param, qs, path):
+        meth_name = path.replace('/','_').replace('.', '_').replace('-','_')
+        if type:
+            meth_name = '%s_%s' % (meth_name, self.type)
+        if use_param:
+            param = qs[self.use_param][0].replace('.', '_').replace('-','_')
+            meth_name = '%s_%s' % (meth_name, param)
+        return meth_name
 
-class MockHttp(object):
+class MockHttp(BaseMockHttpObject):
     """
     A mock HTTP client/server suitable for testing purposes. This replaces
     `HTTPConnection` by implementing its API and returning a mock response.
@@ -106,19 +117,16 @@ class MockHttp(object):
         self.host = host
         self.port = port
 
-    def request(self, method, url, body=None, headers=None):
+    def request(self, method, url, body=None, headers=None, raw=False):
         # Find a method we can use for this request
         parsed = urlparse.urlparse(url)
         scheme, netloc, path, params, query, fragment = parsed
         qs = parse_qs(query)
         if path.endswith('/'):
             path = path[:-1]
-        meth_name = path.replace('/','_').replace('.', '_').replace('-','_')
-        if self.type:
-            meth_name = '%s_%s' % (meth_name, self.type)
-        if self.use_param:
-            param = qs[self.use_param][0].replace('.', '_').replace('-','_')
-            meth_name = '%s_%s' % (meth_name, param)
+        meth_name = self._get_method_name(type=self.type,
+                                          use_param=self.use_param,
+                                          qs=qs, path=path)
         meth = getattr(self, meth_name)
         status, body, headers, reason = meth(method, url, body, headers)
         self.response = self.responseCls(status, body, headers, reason)
