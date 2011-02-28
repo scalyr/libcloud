@@ -53,15 +53,16 @@ class CloudFilesResponse(Response):
         if not self.body:
             return None
 
-        content_type = self.headers['content-type']
+        if 'content-type' in self.headers:
+            key = 'content-type'
+        elif 'Content-Type' in self.headers:
+            key = 'Content-Type'
+        else:
+            raise LibcloudError('Missing content-type header')
+
+        content_type = self.headers[key]
         if content_type.find(';') != -1:
             content_type = content_type.split(';')[0]
-
-        if content_type not in self.expected_content_types:
-            raise MalformedResponseError('Expected content-type %s but got %s' %
-                                         (str(self.expected_content_types),
-                                          content_type),
-                                         driver=CloudFilesStorageDriver)
 
         if content_type == 'application/json':
             try:
@@ -71,6 +72,8 @@ class CloudFilesResponse(Response):
                                              body=self.body,
                                              driver=CloudFilesStorageDriver)
         elif content_type == 'text/plain':
+            data = self.body
+        else:
             data = self.body
 
         return data
