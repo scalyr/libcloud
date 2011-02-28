@@ -47,7 +47,7 @@ class CloudFilesResponse(Response):
 
     def success(self):
         i = int(self.status)
-        return i >= 200 and i <= 299 or i in self.valid_response_codes 
+        return i >= 200 and i <= 299 or i in self.valid_response_codes
 
     def parse_body(self):
         if not self.body:
@@ -309,7 +309,6 @@ class CloudFilesStorageDriver(StorageDriver):
 
         Note: This will override file with a same name if it already exists.
         """
-
         upload_func = self._upload_file
         upload_func_args = { 'file_path': file_path }
 
@@ -340,7 +339,8 @@ class CloudFilesStorageDriver(StorageDriver):
         if response.status == httplib.NO_CONTENT:
             return True
         elif response.status == httplib.NOT_FOUND:
-            raise ObjectDoesNotExistError(name=object_name)
+            raise ObjectDoesNotExistError(value='', object_name=object_name,
+                                          driver=self)
 
         raise LibcloudError('Unexpected status code: %s' % (response.status))
 
