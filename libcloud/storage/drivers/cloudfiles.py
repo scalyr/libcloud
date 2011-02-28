@@ -411,6 +411,10 @@ class CloudFilesStorageDriver(StorageDriver):
         if name.startswith('/'):
             name = name[1:]
         name = urllib.quote(name)
+
+        if name.find('/') != -1:
+            raise InvalidContainerNameError(value='',
+                                            container_name=name, driver=self)
         return name
 
     def _clean_object_name(self, name):
