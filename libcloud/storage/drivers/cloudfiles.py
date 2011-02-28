@@ -432,8 +432,16 @@ class CloudFilesStorageDriver(StorageDriver):
         name = urllib.quote(name)
 
         if name.find('/') != -1:
-            raise InvalidContainerNameError(value='',
+            raise InvalidContainerNameError(value='Container name cannot'
+                                                  ' contain slashes',
                                             container_name=name, driver=self)
+
+        if len(name) > 256:
+            raise InvalidContainerNameError(value='Container name cannot be'
+                                                   ' longer than 256 bytes',
+                                            container_name=name, driver=self)
+
+
         return name
 
     def _clean_object_name(self, name):
