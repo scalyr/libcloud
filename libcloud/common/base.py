@@ -231,6 +231,7 @@ class ConnectionKey(object):
     conn_classes = (LibcloudHTTPConnection, LibcloudHTTPSConnection)
 
     responseCls = Response
+    rawResponseCls = RawResponse
     connection = None
     host = '127.0.0.1'
     port = (80, 443)
@@ -334,6 +335,7 @@ class ConnectionKey(object):
             headers = {}
 
         self.action = action
+        self.method = method
         # Extend default parameters
         params = self.add_default_params(params)
         # Extend default headers
@@ -359,7 +361,6 @@ class ConnectionKey(object):
         try:
             # @TODO: Should we just pass File object as body to request method
             # instead of dealing with splitting and sending the file ourselves?
-            #
             if raw:
                 self.connection.putrequest(method, action)
 
@@ -374,7 +375,7 @@ class ConnectionKey(object):
             raise ssl.SSLError(str(e))
 
         if raw:
-            response = RawResponse()
+            response = self.rawResponseCls()
         else:
             response = self.responseCls(self.connection.getresponse())
 
