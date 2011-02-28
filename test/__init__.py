@@ -155,6 +155,47 @@ class MockHttp(BaseMockHttpObject):
         return (httplib.FORBIDDEN, 'Oh Noes!', {'X-Foo': 'fail'},
                 httplib.responses[httplib.FORBIDDEN])
 
+class MockRawResponse(BaseMockHttpObject):
+    """
+    Mock RawResponse object suitable for testing.
+    """
+
+    type = None
+    responseCls = MockResponse
+
+    def __init__(self):
+        super(MockRawResponse, self).__init__()
+        self._status = None
+        self._response = None
+        self._headers = None
+        self._reason = None
+
+    @property
+    def response(self):
+        if not self._response:
+            meth_name = self._get_method_name(type=self.type,
+                                              use_param=False, qs=None,
+                                              path=self.connection.action)
+            meth = getattr(self, meth_name)
+            result = meth(self.connection.method, None, None, None)
+            self._status, self._body, self._headers, self._reason = result
+            self._response = self.responseCls(self._status, self._body,
+                                              self._headers, self._reason)
+            return self
+        return self._response
+
+    @property
+    def status(self):
+        return self._status
+
+    @property
+    def headers(self):
+        return self._headers
+
+    @property
+    def reason(self):
+        return self._reason
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
