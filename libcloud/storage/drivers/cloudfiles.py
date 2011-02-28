@@ -239,7 +239,7 @@ class CloudFilesStorageDriver(StorageDriver):
         raise LibcloudError('Unexpected status code: %s' % (response.status))
 
     def create_container(self, container_name):
-        name = self._clean_container_name(name)
+        container_name = self._clean_container_name(container_name)
         response = self.connection.request('/%s' % (container_name), method='PUT')
 
         if response.status == httplib.CREATED:
