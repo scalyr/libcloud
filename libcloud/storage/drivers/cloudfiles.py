@@ -43,11 +43,11 @@ API_VERSION = 'v1.0'
 
 class CloudFilesResponse(Response):
 
-    expected_content_types = [ 'application/json', 'text/plain' ]
+    valid_response_codes = [ httplib.NOT_FOUND, httplib.CONFLICT ]
 
     def success(self):
         i = int(self.status)
-        return i >= 200 and i <= 299
+        return i >= 200 and i <= 299 or i in self.valid_response_codes 
 
     def parse_body(self):
         if not self.body:
@@ -283,10 +283,12 @@ class CloudFilesStorageDriver(StorageDriver):
         if response.status == httplib.NO_CONTENT:
             return True
         elif response.status == httplib.NOT_FOUND:
-            raise ContainerDoesNotExistError(name=name)
+            raise ContainerDoesNotExistError(value='',
+                                             container_name=name, driver=self)
         elif response.status == httplib.CONFLICT:
             # @TODO: Add "delete_all_objects" parameter?
-            raise ContainerIsNotEmptyError(name=name)
+            raise ContainerIsNotEmptyError(value='',
+                                           container_name=name, driver=self)
 
     def download_object(self, obj, destination_path, overwrite_existing=False,
                         delete_on_failure=True):
