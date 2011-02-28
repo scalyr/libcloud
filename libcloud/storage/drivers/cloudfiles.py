@@ -158,7 +158,7 @@ class CloudFilesConnection(ConnectionUserAndKey):
         if self.request_path:
             action = self.request_path + action
             params['format'] = 'json'
-        if method == "POST":
+        if method in [ 'POST', 'PUT' ]:
             headers = {'Content-Type': 'application/json; charset=UTF-8'}
 
         return super(CloudFilesConnection, self).request(
