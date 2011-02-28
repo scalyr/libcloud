@@ -257,6 +257,7 @@ class StorageDriver(object):
         raise NotImplementedError, \
             'upload_object not implemented for this driver'
 
+    def stream_object_data(self, iterator, container, object_name, extra=None):
     def stream_object_data(self, iterator, object_name, extra=None):
         raise NotImplementedError, \
             'stream_object_data not implemented for this driver'
