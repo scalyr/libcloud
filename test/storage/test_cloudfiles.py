@@ -401,7 +401,6 @@ class CloudFilesMockRawResponse(MockRawResponse):
     def  _v1_MossoCloudFS_foo_bar_container_foo_test_upload_INVALID_HASH(self, method, url, body, headers):
         # test_object_upload_invalid_hash
         body = ''
-        print 'fuuu'
         header = copy.deepcopy(self.base_headers)
         return (httplib.UNPROCESSABLE_ENTITY, body, headers,
                 httplib.responses[httplib.OK])
