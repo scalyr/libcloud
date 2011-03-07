@@ -75,7 +75,7 @@ class TestCommand(Command):
               )
 
         tests = TestLoader().loadTestsFromNames(testfiles)
-        t = TextTestRunner(verbosity = 1)
+        t = TextTestRunner(verbosity = 2)
         res = t.run(tests)
         sys.exit(not res.wasSuccessful())
 
