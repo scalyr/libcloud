@@ -41,12 +41,12 @@ def read_in_chunks(iterator, chunk_size=None):
         args = ()
 
     while True:
-       chunk = str(get_data(*args))
+        chunk = str(get_data(*args))
 
-       if len(chunk) == 0:
-           raise StopIteration
+        if len(chunk) == 0:
+            raise StopIteration
 
-       yield chunk
+        yield chunk
 
 def guess_file_mime_type(file_path):
     filename = os.path.basename(file_path)
