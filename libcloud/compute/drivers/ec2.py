@@ -36,6 +36,7 @@ EC2_US_EAST_HOST = 'ec2.us-east-1.amazonaws.com'
 EC2_US_WEST_HOST = 'ec2.us-west-1.amazonaws.com'
 EC2_EU_WEST_HOST = 'ec2.eu-west-1.amazonaws.com'
 EC2_AP_SOUTHEAST_HOST = 'ec2.ap-southeast-1.amazonaws.com'
+EC2_AP_NORTHEAST_HOST = 'ec2.ap-northeast-1.amazonaws.com'
 
 API_VERSION = '2010-08-31'
 
@@ -131,6 +132,7 @@ EC2_US_EAST_INSTANCE_TYPES = dict(EC2_INSTANCE_TYPES)
 EC2_US_WEST_INSTANCE_TYPES = dict(EC2_INSTANCE_TYPES)
 EC2_EU_WEST_INSTANCE_TYPES = dict(EC2_INSTANCE_TYPES)
 EC2_AP_SOUTHEAST_INSTANCE_TYPES = dict(EC2_INSTANCE_TYPES)
+EC2_AP_NORTHEAST_INSTANCE_TYPES = dict(EC2_INSTANCE_TYPES)
 
 #
 # On demand prices must also be hardcoded, because Amazon doesn't provide an
@@ -143,8 +145,8 @@ EC2_US_EAST_INSTANCE_TYPES['m1.xlarge']['price'] = '.68'
 EC2_US_EAST_INSTANCE_TYPES['c1.medium']['price'] = '.17'
 EC2_US_EAST_INSTANCE_TYPES['c1.xlarge']['price'] = '.68'
 EC2_US_EAST_INSTANCE_TYPES['m2.xlarge']['price'] = '.50'
-EC2_US_EAST_INSTANCE_TYPES['m2.2xlarge']['price'] = '1.2'
-EC2_US_EAST_INSTANCE_TYPES['m2.4xlarge']['price'] = '2.4'
+EC2_US_EAST_INSTANCE_TYPES['m2.2xlarge']['price'] = '1.0'
+EC2_US_EAST_INSTANCE_TYPES['m2.4xlarge']['price'] = '2.0'
 EC2_US_EAST_INSTANCE_TYPES['cg1.4xlarge']['price'] = '2.1'
 EC2_US_EAST_INSTANCE_TYPES['cc1.4xlarge']['price'] = '1.6'
 
@@ -154,9 +156,9 @@ EC2_US_WEST_INSTANCE_TYPES['m1.large']['price'] = '.38'
 EC2_US_WEST_INSTANCE_TYPES['m1.xlarge']['price'] = '.76'
 EC2_US_WEST_INSTANCE_TYPES['c1.medium']['price'] = '.19'
 EC2_US_WEST_INSTANCE_TYPES['c1.xlarge']['price'] = '.76'
-EC2_US_EAST_INSTANCE_TYPES['m2.xlarge']['price'] = '.57'
-EC2_US_WEST_INSTANCE_TYPES['m2.2xlarge']['price'] = '1.34'
-EC2_US_WEST_INSTANCE_TYPES['m2.4xlarge']['price'] = '2.68'
+EC2_US_WEST_INSTANCE_TYPES['m2.xlarge']['price'] = '.57'
+EC2_US_WEST_INSTANCE_TYPES['m2.2xlarge']['price'] = '1.14'
+EC2_US_WEST_INSTANCE_TYPES['m2.4xlarge']['price'] = '2.28'
 
 EC2_EU_WEST_INSTANCE_TYPES['t1.micro']['price'] = '.025'
 EC2_EU_WEST_INSTANCE_TYPES['m1.small']['price'] = '.095'
@@ -164,13 +166,22 @@ EC2_EU_WEST_INSTANCE_TYPES['m1.large']['price'] = '.38'
 EC2_EU_WEST_INSTANCE_TYPES['m1.xlarge']['price'] = '.76'
 EC2_EU_WEST_INSTANCE_TYPES['c1.medium']['price'] = '.19'
 EC2_EU_WEST_INSTANCE_TYPES['c1.xlarge']['price'] = '.76'
-EC2_US_EAST_INSTANCE_TYPES['m2.xlarge']['price'] = '.57'
-EC2_EU_WEST_INSTANCE_TYPES['m2.2xlarge']['price'] = '1.34'
-EC2_EU_WEST_INSTANCE_TYPES['m2.4xlarge']['price'] = '2.68'
+EC2_EU_WEST_INSTANCE_TYPES['m2.xlarge']['price'] = '.57'
+EC2_EU_WEST_INSTANCE_TYPES['m2.2xlarge']['price'] = '1.14'
+EC2_EU_WEST_INSTANCE_TYPES['m2.4xlarge']['price'] = '2.28'
 
 # prices are the same
 EC2_AP_SOUTHEAST_INSTANCE_TYPES = dict(EC2_EU_WEST_INSTANCE_TYPES)
 
+EC2_AP_NORTHEAST_INSTANCE_TYPES['t1.micro']['price'] = '.027'
+EC2_AP_NORTHEAST_INSTANCE_TYPES['m1.small']['price'] = '.10'
+EC2_AP_NORTHEAST_INSTANCE_TYPES['m1.large']['price'] = '.40'
+EC2_AP_NORTHEAST_INSTANCE_TYPES['m1.xlarge']['price'] = '.80'
+EC2_AP_NORTHEAST_INSTANCE_TYPES['c1.medium']['price'] = '.20'
+EC2_AP_NORTHEAST_INSTANCE_TYPES['c1.xlarge']['price'] = '.80'
+EC2_AP_NORTHEAST_INSTANCE_TYPES['m2.xlarge']['price'] = '.60'
+EC2_AP_NORTHEAST_INSTANCE_TYPES['m2.2xlarge']['price'] = '1.20'
+EC2_AP_NORTHEAST_INSTANCE_TYPES['m2.4xlarge']['price'] = '2.39'
 
 class EC2NodeLocation(NodeLocation):
     def __init__(self, id, name, country, driver, availability_zone):
@@ -355,8 +366,8 @@ class EC2NodeDriver(NodeDriver):
             id=self._findtext(element, 'instanceId'),
             name=self._findtext(element, 'instanceId'),
             state=state,
-            public_ip=[self._findtext(element, 'dnsName')],
-            private_ip=[self._findtext(element, 'privateDnsName')],
+            public_ip=[self._findtext(element, 'ipAddress')],
+            private_ip=[self._findtext(element, 'privateIpAddress')],
             driver=self.connection.driver,
             extra={
                 'dns_name': self._findattr(element, "dnsName"),
@@ -402,6 +413,10 @@ class EC2NodeDriver(NodeDriver):
             groups=[g.findtext('')
                         for g in self._findall(rs, 'groupSet/item/groupId')]
             nodes += self._to_nodes(rs, 'instancesSet/item', groups)
+
+        nodes_elastic_ips_mappings = self.ex_describe_addresses(nodes)
+        for node in nodes:
+            node.public_ip.extend(nodes_elastic_ips_mappings[node.id])
         return nodes
 
     def list_sizes(self, location=None):
@@ -636,6 +651,99 @@ class EC2NodeDriver(NodeDriver):
             tags[key] = value
         return tags
 
+    def ex_create_tags(self, node, tags):
+        """
+        Create tags for an instance.
+
+        @type node: C{Node}
+        @param node: Node instance
+        @param tags: A dictionary or other mapping of strings to strings,
+                     associating tag names with tag values.
+        """
+        if not tags:
+            return
+
+        params = { 'Action': 'CreateTags',
+                   'ResourceId.0': node.id }
+        for i, key in enumerate(tags):
+            params['Tag.%d.Key' % i] = key
+            params['Tag.%d.Value' % i] = tags[key]
+
+        self.connection.request(self.path,
+                                params=params.copy()).object
+
+    def ex_delete_tags(self, node, tags):
+        """
+        Delete tags from an instance.
+
+        @type node: C{Node}
+        @param node: Node instance
+        @param tags: A dictionary or other mapping of strings to strings,
+                     specifying the tag names and tag values to be deleted.
+        """
+        if not tags:
+            return
+
+        params = { 'Action': 'DeleteTags',
+                   'ResourceId.0': node.id }
+        for i, key in enumerate(tags):
+            params['Tag.%d.Key' % i] = key
+            params['Tag.%d.Value' % i] = tags[key]
+
+        self.connection.request(self.path,
+                                params=params.copy()).object
+
+    def ex_describe_addresses(self, nodes):
+        """
+        Return Elastic IP addresses for all the nodes in the provided list.
+
+        @type nodes: C{list}
+        @param nodes: List of C{Node} instances
+
+        @return dict Dictionary where a key is a node ID and the value is a
+                     list with the Elastic IP addresses associated with this node.
+        """
+        if not nodes:
+            return {}
+
+        params = { 'Action': 'DescribeAddresses' }
+
+        if len(nodes) == 1:
+           params.update({
+                  'Filter.0.Name': 'instance-id',
+                  'Filter.0.Value.0': nodes[0].id
+           })
+
+        result = self.connection.request(self.path,
+                                         params=params.copy()).object
+
+        node_instance_ids = [ node.id for node in nodes ]
+        nodes_elastic_ip_mappings = {}
+
+        for node_id in node_instance_ids:
+            nodes_elastic_ip_mappings.setdefault(node_id, [])
+        for element in self._findall(result, 'addressesSet/item'):
+            instance_id = self._findtext(element, 'instanceId')
+            ip_address = self._findtext(element, 'publicIp')
+
+            if instance_id not in node_instance_ids:
+                continue
+
+            nodes_elastic_ip_mappings[instance_id].append(ip_address)
+        return nodes_elastic_ip_mappings
+
+    def ex_describe_addresses_for_node(self, node):
+        """
+        Return a list of Elastic IP addresses associated with this node.
+
+        @type node: C{Node}
+        @param node: Node instance
+
+        @return list Elastic IP addresses attached to this node.
+        """
+        node_elastic_ips = self.ex_describe_addresses([node])
+        return node_elastic_ips[node.id]
+
     def create_node(self, **kwargs):
         """Create a new EC2 node
 
@@ -771,6 +879,13 @@ class EC2APSEConnection(EC2Connection):
 
     host = EC2_AP_SOUTHEAST_HOST
 
+class EC2APNEConnection(EC2Connection):
+    """
+    Connection class for EC2 in the Northeast Asia Pacific Region
+    """
+
+    host = EC2_AP_NORTHEAST_HOST
+
 class EC2APSENodeDriver(EC2NodeDriver):
     """
     Driver class for EC2 in the Southeast Asia Pacific Region
@@ -782,6 +897,18 @@ class EC2APSENodeDriver(EC2NodeDriver):
     region_name = 'ap-southeast-1'
     connectionCls = EC2APSEConnection
     _instance_types = EC2_AP_SOUTHEAST_INSTANCE_TYPES
+
+class EC2APNENodeDriver(EC2NodeDriver):
+    """
+    Driver class for EC2 in the Northeast Asia Pacific Region
+    """
+
+    name = 'Amazon EC2 (ap-northeast-1)'
+    friendly_name = 'Amazon Asia-Pacific Tokyo'
+    country = 'JP'
+    region_name = 'ap-northeast-1'
+    connectionCls = EC2APNEConnection
+    _instance_types = EC2_AP_NORTHEAST_INSTANCE_TYPES
 
 class EucConnection(EC2Connection):
     """

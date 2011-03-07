@@ -311,6 +311,18 @@ class RackspaceNodeDriver(NodeDriver):
                                        data=ET.tostring(server_elm))
         return self._to_node(resp.object)
 
+    def ex_rebuild(self, node_id, image_id):
+        elm = ET.Element(
+            'rebuild',
+            {'xmlns': NAMESPACE,
+             'imageId': image_id,
+            }
+        )
+        resp = self.connection.request("/servers/%s/action" % node_id,
+                                       method='POST',
+                                       data=ET.tostring(elm))
+        return resp.status == 202
+
     def ex_create_ip_group(self, group_name, node_id=None):
         group_elm = ET.Element(
             'sharedIpGroup',
@@ -416,6 +428,13 @@ class RackspaceNodeDriver(NodeDriver):
         resp = self.connection.request(uri, method='DELETE')
         return resp.status == 202
 
+    def ex_get_node_details(self, node_id):
+        uri = '/servers/%s' % (node_id)
+        resp = self.connection.request(uri, method='GET')
+        if resp.status == 404:
+            return None
+        return self._to_node(resp.object)
+
     def _node_action(self, node, body):
         if isinstance(body, list):
             attr = ' '.join(['%s="%s"' % (item[0], item[1])
@@ -463,6 +482,7 @@ class RackspaceNodeDriver(NodeDriver):
                     'hostId': el.get('hostId'),
                     'imageId': el.get('imageId'),
                     'flavorId': el.get('flavorId'),
+                    'uri': "https://%s%s/servers/%s" % (self.connection.host, self.connection.path, el.get('id')),
                     'metadata': metadata,
                  })
         return n

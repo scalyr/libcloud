@@ -16,7 +16,8 @@ import sys
 import unittest
 import httplib
 
-from libcloud.compute.drivers.ec2 import EC2NodeDriver, EC2APSENodeDriver, IdempotentParamError
+from libcloud.compute.drivers.ec2 import EC2NodeDriver, EC2APSENodeDriver
+from libcloud.compute.drivers.ec2 import EC2APNENodeDriver, IdempotentParamError
 from libcloud.compute.base import Node, NodeImage, NodeSize, NodeLocation
 
 from test import MockHttp
@@ -87,7 +88,12 @@ class EC2Tests(unittest.TestCase, TestCaseMixin):
 
     def test_list_nodes(self):
         node = self.driver.list_nodes()[0]
+        public_ips = sorted(node.public_ip)
         self.assertEqual(node.id, 'i-4382922a')
+        self.assertEqual(len(node.public_ip), 2)
+
+        self.assertEqual(public_ips[0], '1.2.3.4')
+        self.assertEqual(public_ips[1], '1.2.3.5')
 
     def test_list_location(self):
         locations = self.driver.list_locations()
@@ -156,6 +162,46 @@ class EC2Tests(unittest.TestCase, TestCaseMixin):
         self.assertTrue('owner' in tags)
         self.assertTrue('stack' in tags)
 
+    def test_ex_create_tags(self):
+        node = Node('i-4382922a', None, None, None, None, self.driver)
+        self.driver.ex_create_tags(node, {'sample': 'tag'})
+
+    def test_ex_delete_tags(self):
+        node = Node('i-4382922a', None, None, None, None, self.driver)
+        self.driver.ex_delete_tags(node, {'sample': 'tag'})
+
+    def test_ex_describe_addresses_for_node(self):
+        node1 = Node('i-4382922a', None, None, None, None, self.driver)
+        ip_addresses1 = self.driver.ex_describe_addresses_for_node(node1)
+        node2 = Node('i-4382922b', None, None, None, None, self.driver)
+        ip_addresses2 = sorted(self.driver.ex_describe_addresses_for_node(node2))
+        node3 = Node('i-4382922g', None, None, None, None, self.driver)
+        ip_addresses3 = sorted(self.driver.ex_describe_addresses_for_node(node3))
+
+        self.assertEqual(len(ip_addresses1), 1)
+        self.assertEqual(ip_addresses1[0], '1.2.3.4')
+
+        self.assertEqual(len(ip_addresses2), 2)
+        self.assertEqual(ip_addresses2[0], '1.2.3.5')
+        self.assertEqual(ip_addresses2[1], '1.2.3.6')
+
+        self.assertEqual(len(ip_addresses3), 0)
+
+    def test_ex_describe_addresses(self):
+        node1 = Node('i-4382922a', None, None, None, None, self.driver)
+        node2 = Node('i-4382922g', None, None, None, None, self.driver)
+        nodes_elastic_ips1 = self.driver.ex_describe_addresses([node1])
+        nodes_elastic_ips2 = self.driver.ex_describe_addresses([node2])
+
+        self.assertEqual(len(nodes_elastic_ips1), 1)
+        self.assertTrue(node1.id in nodes_elastic_ips1)
+        self.assertEqual(nodes_elastic_ips1[node1.id], ['1.2.3.4'])
+
+        self.assertEqual(len(nodes_elastic_ips2), 1)
+        self.assertTrue(node2.id in nodes_elastic_ips2)
+        self.assertEqual(nodes_elastic_ips2[node2.id], [])
+
+
 class EC2MockHttp(MockHttp):
 
     fixtures = ComputeFileFixtures('ec2')
@@ -196,12 +242,32 @@ class EC2MockHttp(MockHttp):
         body = self.fixtures.load('describe_tags.xml')
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
 
+    def _CreateTags(self, method, url, body, headers):
+        body = self.fixtures.load('create_tags.xml')
+        return (httplib.OK, body, {}, httplib.responses[httplib.OK])
+
+    def _DeleteTags(self, method, url, body, headers):
+        body = self.fixtures.load('delete_tags.xml')
+        return (httplib.OK, body, {}, httplib.responses[httplib.OK])
+
+    def _DescribeAddresses(self, method, url, body, headers):
+        body = self.fixtures.load('describe_addresses_multi.xml')
+        return (httplib.OK, body, {}, httplib.responses[httplib.OK])
+
+
 class EC2APSETests(EC2Tests):
     def setUp(self):
         EC2APSENodeDriver.connectionCls.conn_classes = (None, EC2MockHttp)
         EC2MockHttp.use_param = 'Action'
         EC2MockHttp.type = None
         self.driver = EC2APSENodeDriver(EC2_ACCESS_ID, EC2_SECRET)
+
+class EC2APNETests(EC2Tests):
+    def setUp(self):
+        EC2APNENodeDriver.connectionCls.conn_classes = (None, EC2MockHttp)
+        EC2MockHttp.use_param = 'Action'
+        EC2MockHttp.type = None
+        self.driver = EC2APNENodeDriver(EC2_ACCESS_ID, EC2_SECRET)
 
 if __name__ == '__main__':
     sys.exit(unittest.main())
