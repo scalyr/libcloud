@@ -14,6 +14,7 @@
 # limitations under the License.
 import os
 import os.path
+import random
 import sys
 import copy
 import unittest
@@ -29,6 +30,7 @@ from libcloud.storage.types import ContainerIsNotEmptyError
 from libcloud.storage.types import ObjectDoesNotExistError
 from libcloud.storage.types import ObjectHashMismatchError
 from libcloud.storage.drivers.cloudfiles import CloudFilesStorageDriver
+from libcloud.storage.drivers.dummy import DummyFileObject, DummyIterator
 
 from test import MockHttp, MockRawResponse
 from test.file_fixtures import StorageFileFixtures
@@ -42,6 +44,10 @@ class CloudFilesTests(unittest.TestCase):
         CloudFilesMockHttp.type = None
         CloudFilesMockRawResponse.type = None
         self.driver = CloudFilesStorageDriver('dummy', 'dummy')
+        self._remove_test_file()
+
+    def tearDown(self):
+        self._remove_test_file()
 
     def test_get_meta_data(self):
         meta_data = self.driver.get_meta_data()
@@ -149,8 +155,46 @@ class CloudFilesTests(unittest.TestCase):
         else:
             self.fail('Container is not empty but an exception was not thrown')
 
-    def download_object(self):
-        pass
+    def test_download_object_success(self):
+        container = Container(name='foo_bar_container', extra={}, driver=self)
+        obj = Object(name='foo_bar_object', size=1000, hash=None, extra={},
+                     container=container, meta_data=None,
+                     driver=CloudFilesStorageDriver)
+        destination_path = os.path.abspath(__file__) + '.temp'
+        result = self.driver.download_object(obj=obj,
+                                             destination_path=destination_path,
+                                             overwrite_existing=False,
+                                             delete_on_failure=True)
+        self.assertTrue(result)
+
+    def test_download_object_invalid_file_size(self):
+        CloudFilesMockRawResponse.type = 'INVALID_SIZE'
+        container = Container(name='foo_bar_container', extra={}, driver=self)
+        obj = Object(name='foo_bar_object', size=1000, hash=None, extra={},
+                     container=container, meta_data=None,
+                     driver=CloudFilesStorageDriver)
+        destination_path = os.path.abspath(__file__) + '.temp'
+        result = self.driver.download_object(obj=obj,
+                                             destination_path=destination_path,
+                                             overwrite_existing=False,
+                                             delete_on_failure=True)
+        self.assertFalse(result)
+
+    def download_object_success_not_found(self):
+        CloudFilesMockHttp.type = 'NOT_FOUND'
+        obj = Object(name='foo_bar_object', size=1000, hash=None, extra={},
+                     container=container, meta_data=None,
+                     driver=CloudFilesStorageDriver)
+        destination_path = os.path.abspath(__file__)
+        try:
+            result = self.driver.download_object(obj=obj,
+                                                 destination_path=destination_path,
+                                                 overwrite_existing=False,
+                                                 delete_on_failure=True)
+        except ObjectDoesNotExistError:
+            pass
+        else:
+            self.fail('Object does not exist but an exception was not thrown')
 
     def object_as_stream(self):
         pass
@@ -213,20 +257,44 @@ class CloudFilesTests(unittest.TestCase):
         finally:
             libcloud.utils.guess_file_mime_type = old_func
 
-    def test_upload_object_fail(self):
-        file_path = os.path.abspath(__file__)
+    # TODO: Add test for upload_object throwing a LibcloudError
+
+    def test_upload_object_inexistent_file(self):
+        def dummy_content_type(name):
+            return 'application/zip', None
+
+        old_func = libcloud.utils.guess_file_mime_type
+        libcloud.utils.guess_file_mime_type = dummy_content_type
+
+        file_path = os.path.abspath(__file__ + '.inexistent')
         container = Container(name='foo_bar_container', extra={}, driver=self)
         object_name = 'foo_test_upload'
         try:
             obj = self.driver.upload_object(file_path=file_path, container=container,
                                             object_name=object_name)
-        except LibcloudError:
+        except OSError:
             pass
         else:
             self.fail('Timeout while uploading but an exception was not thrown')
+        finally:
+            libcloud.utils.guess_file_mime_type = old_func
 
-    def stream_object_data(self):
-        pass
+    def test_stream_object_data(self):
+        def dummy_content_type(name):
+            return 'application/zip', None
+
+        old_func = libcloud.utils.guess_file_mime_type
+        libcloud.utils.guess_file_mime_type = dummy_content_type
+
+        container = Container(name='foo_bar_container', extra={}, driver=self)
+        object_name = 'foo_test_stream_data'
+        iterator = DummyIterator(data=['2', '3', '5'])
+        try:
+            obj = self.driver.stream_object_data(container=container,
+                                                 object_name=object_name,
+                                                 iterator=iterator)
+        finally:
+            libcloud.utils.guess_file_mime_type = old_func
 
     def test_delete_object_success(self):
         container = Container(name='foo_bar_container', extra={}, driver=self)
@@ -249,6 +317,14 @@ class CloudFilesTests(unittest.TestCase):
         else:
             self.fail('Object does not exist but an exception was not thrown')
 
+    def _remove_test_file(self):
+        file_path = os.path.abspath(__file__) + '.temp'
+
+        try:
+            os.unlink(file_path)
+        except OSError:
+            pass
+
 class CloudFilesMockHttp(MockHttp):
 
     fixtures = StorageFileFixtures('cloudfiles')
@@ -262,6 +338,9 @@ class CloudFilesMockHttp(MockHttp):
 
     def endheaders(self):
         pass
+
+    def send(self, data):
+      pass
 
     # fake auth token response
     def _v1_0(self, method, url, body, headers):
@@ -392,8 +471,32 @@ class CloudFilesMockRawResponse(MockRawResponse):
     fixtures = StorageFileFixtures('cloudfiles')
     base_headers = { 'content-type': 'application/json; charset=UTF-8'}
 
+    def __init__(self, *args, **kwargs):
+      super(CloudFilesMockRawResponse, self).__init__(*args, **kwargs)
+      self._data = []
+      self._current_item = 0
+
+    def next(self):
+        if self._current_item == len(self._data):
+          raise StopIteration
+
+        value = self._data[self._current_item]
+        self._current_item += 1
+        return value
+
+    def _generate_random_data(self, size):
+      data = []
+      current_size = 0
+      while current_size < size:
+        value = str(random.randint(0, 9))
+        value_size = len(value)
+        data.append(value)
+        current_size += value_size
+
+      return data
+
     def  _v1_MossoCloudFS_foo_bar_container_foo_test_upload(self, method, url, body, headers):
-        # test_object__upload_success
+        # test_object_upload_success
         body = ''
         header = copy.deepcopy(self.base_headers)
         return (httplib.CREATED, body, headers, httplib.responses[httplib.OK])
@@ -401,9 +504,26 @@ class CloudFilesMockRawResponse(MockRawResponse):
     def  _v1_MossoCloudFS_foo_bar_container_foo_test_upload_INVALID_HASH(self, method, url, body, headers):
         # test_object_upload_invalid_hash
         body = ''
-        header = copy.deepcopy(self.base_headers)
+        headers = self.base_headers
         return (httplib.UNPROCESSABLE_ENTITY, body, headers,
                 httplib.responses[httplib.OK])
+
+    def _v1_MossoCloudFS_foo_bar_container_foo_bar_object(self, method, url, body, headers):
+        # test_download_object_success
+        body = 'test'
+        self._data = self._generate_random_data(1000)
+        return (httplib.OK, body, self.base_headers, httplib.responses[httplib.OK])
+
+    def _v1_MossoCloudFS_foo_bar_container_foo_bar_object_INVALID_SIZE(self, method, url, body, headers):
+        # test_download_object_invalid_file_size
+        body = 'test'
+        self._data = self._generate_random_data(100)
+        return (httplib.OK, body, self.base_headers, httplib.responses[httplib.OK])
+
+    def _v1_MossoCloudFS_foo_bar_container_foo_test_stream_data(self, method, url, body, headers):
+        # test_stream_object_data_success
+        body = 'test'
+        return (httplib.OK, body, self.base_headers, httplib.responses[httplib.OK])
 
 if __name__ == '__main__':
     sys.exit(unittest.main())
