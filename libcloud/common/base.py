@@ -553,12 +553,12 @@ class AsyncConnection(Connection):
                                          method=method,
                                          context=context)
         response = request(**kwargs)
+        kwargs = self.get_poll_request_kwargs(response=response,
+                                              context=context)
 
         end = time.time() + self.timeout
         completed = False
         while time.time() < end and not completed:
-            kwargs = self.get_poll_request_kwargs(response=response,
-                                                  context=context)
             response = request(**kwargs)
             completed = self.has_completed(response=response)
 
