@@ -537,7 +537,7 @@ class Connection(object):
         """
         return data
 
-class AyncConnection(Connection):
+class AsyncConnection(Connection):
     """
     Connection class which can also work with the async APIs.
     """
