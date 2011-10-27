@@ -54,12 +54,13 @@ class CloudStackConnection(ConnectionUserAndKey, AsyncConnection):
 
     def _async_request(self, command, **kwargs):
         context = {'command': command, 'kwargs': kwargs}
-        return super(CloudStackConnection, self).async_request(action=None,
+        result = super(CloudStackConnection, self).async_request(action=None,
                                                                params=None,
                                                                data=None,
                                                                headers=None,
                                                                method=None,
                                                                context=context)
+        return result['jobresult']
 
     def get_request_kwargs(self, action, params=None, data='', headers=None,
                            method='GET', context=None):
@@ -67,7 +68,7 @@ class CloudStackConnection(ConnectionUserAndKey, AsyncConnection):
 
     def get_poll_request_kwargs(self, response, context):
         job_id = response['jobid']
-        kwargs = {'command': 'queryAsyncJobResult', 'job_id': job_id}
+        kwargs = {'command': 'queryAsyncJobResult', 'jobid': job_id}
         return kwargs
 
     def has_completed(self, response):
