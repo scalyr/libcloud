@@ -27,7 +27,7 @@ class CloudStackResponse(JsonResponse): pass
 
 class CloudStackConnection(ConnectionUserAndKey, AsyncConnection):
     responseCls = CloudStackResponse
-    request_func = '_sync_request'
+    request_method = '_sync_request'
 
     ASYNC_PENDING = 0
     ASYNC_SUCCESS = 1

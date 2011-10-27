@@ -543,11 +543,11 @@ class AsyncConnection(Connection):
     """
     poll_interval = 0.5
     timeout = 10
-    request_func = 'request'
+    request_method = 'request'
 
     def async_request(self, action, params=None, data='', headers=None,
                       method='GET', context=None):
-        request = getattr(self, self.request_func)
+        request = getattr(self, self.request_method)
         kwargs = self.get_request_kwargs(action=action, params=params,
                                          data=data, headers=headers,
                                          method=method, raw=False,
