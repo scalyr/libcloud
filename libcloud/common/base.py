@@ -17,6 +17,7 @@ import httplib
 import urllib
 import StringIO
 import ssl
+import time
 
 from xml.etree import ElementTree as ET
 from pipes import quote as pquote
@@ -273,6 +274,7 @@ class LoggingHTTPConnection(LoggingConnection, LibcloudHTTPConnection):
             self.log.flush()
         return LibcloudHTTPConnection.request(self, method, url,
                                                body, headers)
+
 
 class Connection(object):
     """
@@ -534,7 +536,56 @@ class Connection(object):
         Override in a provider's subclass.
         """
         return data
-    
+
+class AyncConnection(Connection):
+    """
+    Connection class which can also work with the async APIs.
+    """
+    poll_interval = 0.5
+    timeout = 10
+
+    def async_request(self, action, params=None, data='', headers=None,
+                      method='GET'):
+        response = self.request(action=action, params=params, data=data,
+                                headers=headers, method=method, raw=False)
+
+        end = time.time() + self.timeout
+        completed = False
+        while time.time() < end and not completed:
+            kwargs = self.get_poll_request_kwargs(response=response)
+            response = self.request(**kwargs)
+            completed = self.has_completed(response=response)
+
+        if not completed:
+            raise LibcloudError('Job did not complete in %s seconds' %
+                                (self.timeout))
+
+        return response
+
+    def get_poll_request_kwargs(self, response):
+        """
+        Return keyword arguments which are passed to the request() method when
+        polling for the job status.
+
+        @param response: Response object returned by poll request.
+        @type response: C{HTTPResponse}
+
+        @return C{dict} Keyword arguments
+        """
+        raise NotImplementedError('has_completed not implemented')
+
+    def has_completed(self, response):
+        """
+        Return job completion status.
+
+        @param response: Response object returned by poll request.
+        @type response: C{HTTPResponse}
+
+        @return C{bool} True if the job has completed, False otherwise.
+        """
+        raise NotImplementedError('has_completed not implemented')
+
+
 class ConnectionKey(Connection):
     """
     A Base Connection class to derive from, which includes a
