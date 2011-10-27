@@ -548,8 +548,11 @@ class AsyncConnection(Connection):
     def async_request(self, action, params=None, data='', headers=None,
                       method='GET', context=None):
         request = getattr(self, self.request_func)
-        response = request(action=action, params=params, data=data,
-                           headers=headers, method=method, raw=False)
+        kwargs = self.get_request_kwargs(action=action, params=params,
+                                         data=data, headers=headers,
+                                         method=method, raw=False,
+                                         context=context)
+        response = request(**kwargs)
 
         end = time.time() + self.timeout
         completed = False
@@ -564,6 +567,16 @@ class AsyncConnection(Connection):
                                 (self.timeout))
 
         return response
+
+    def get_request_kwargs(self, action, params=None, data='', headers=None,
+                           method='GET', raw=False, context=None):
+        """
+        Arguments which are passed to the initial request() call inside
+        async_request.
+        """
+        kwargs = {'action': action, 'params': params, 'data': data,
+                  'headers': headers, 'method': method, 'raw': raw}
+        return kwargs
 
     def get_poll_request_kwargs(self, response, context):
         """
