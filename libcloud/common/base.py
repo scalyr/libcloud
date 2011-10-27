@@ -545,14 +545,15 @@ class AyncConnection(Connection):
     timeout = 10
 
     def async_request(self, action, params=None, data='', headers=None,
-                      method='GET'):
+                      method='GET', context=None):
         response = self.request(action=action, params=params, data=data,
                                 headers=headers, method=method, raw=False)
 
         end = time.time() + self.timeout
         completed = False
         while time.time() < end and not completed:
-            kwargs = self.get_poll_request_kwargs(response=response)
+            kwargs = self.get_poll_request_kwargs(response=response,
+                                                  context=context)
             response = self.request(**kwargs)
             completed = self.has_completed(response=response)
 
@@ -562,7 +563,7 @@ class AyncConnection(Connection):
 
         return response
 
-    def get_poll_request_kwargs(self, response):
+    def get_poll_request_kwargs(self, response, context):
         """
         Return keyword arguments which are passed to the request() method when
         polling for the job status.
