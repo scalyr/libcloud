@@ -52,14 +52,13 @@ class CloudStackConnection(ConnectionUserAndKey, AsyncConnection):
 
         return params, headers
 
-    def async_request(self, command, **kwargs):
+    def _async_request(self, command, **kwargs):
         context = {'command': command, 'kwargs': kwargs}
         return super(CloudStackConnection, self).async_request(action=None,
                                                                params=None,
                                                                data=None,
                                                                headers=None,
                                                                method=None,
-                                                               raw=False,
                                                                context=context)
 
     def get_request_kwargs(self, action, params=None, data='', headers=None,

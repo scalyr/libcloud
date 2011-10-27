@@ -550,7 +550,7 @@ class AsyncConnection(Connection):
         request = getattr(self, self.request_method)
         kwargs = self.get_request_kwargs(action=action, params=params,
                                          data=data, headers=headers,
-                                         method=method, raw=False,
+                                         method=method,
                                          context=context)
         response = request(**kwargs)
 
@@ -569,13 +569,13 @@ class AsyncConnection(Connection):
         return response
 
     def get_request_kwargs(self, action, params=None, data='', headers=None,
-                           method='GET', raw=False, context=None):
+                           method='GET', context=None):
         """
         Arguments which are passed to the initial request() call inside
         async_request.
         """
         kwargs = {'action': action, 'params': params, 'data': data,
-                  'headers': headers, 'method': method, 'raw': raw}
+                  'headers': headers, 'method': method}
         return kwargs
 
     def get_poll_request_kwargs(self, response, context):
