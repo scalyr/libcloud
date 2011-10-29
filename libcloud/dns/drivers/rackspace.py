@@ -195,6 +195,7 @@ class RackspaceDNSDriver(DNSDriver):
     def create_record(self, name, zone, type, data, extra=None):
         # Name must be a FQDN - e.g. if domain is "foo.com" then a record
         # name is "bar.foo.com"
+        extra = extra if extra else {}
         data = {'name': name, 'type': RECORD_TYPE_MAP[type], 'data': data}
 
         if 'ttl' in extra:
