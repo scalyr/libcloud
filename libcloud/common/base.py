@@ -592,7 +592,7 @@ class PollingConnection(Connection):
 
         @return C{dict} Keyword arguments
         """
-        raise NotImplementedError('has_completed not implemented')
+        raise NotImplementedError('get_poll_request_kwargs not implemented')
 
     def has_completed(self, response):
         """
