@@ -299,6 +299,9 @@ class RackspaceDNSDriver(DNSDriver):
         if 'ttl' in data:
             extra['ttl'] = data['ttl']
 
+        if 'comment' in data:
+            extra['comment'] = data['comment']
+
         record = Record(id=str(id), name=name, type=type, data=record_data,
                         zone=zone, driver=self, extra=extra)
         return record
