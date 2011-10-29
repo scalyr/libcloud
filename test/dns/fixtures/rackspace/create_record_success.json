@@ -1,9 +1,9 @@
 {
-   "request":"{\"records\": [{\"data\": \"127.1.1.1\", \"type\": \"A\", \"name\": \"www.bar.foo1.com\"}]}",
+   "request":"{\"records\": [{\"data\": \"127.1.1.1\", \"type\": \"A\", \"name\": \"www.foo4.bar.com\"}]}",
    "response":{
       "records":[
          {
-            "name":"www.bar.foo1.com",
+            "name":"www.foo4.bar.com",
             "id":"A-7423317",
             "type":"A",
             "data":"127.1.1.1",

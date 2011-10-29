@@ -196,6 +196,8 @@ class RackspaceDNSDriver(DNSDriver):
         # Name must be a FQDN - e.g. if domain is "foo.com" then a record
         # name is "bar.foo.com"
         extra = extra if extra else {}
+
+        name = self._to_full_record_name(domain=zone.domain, name=name)
         data = {'name': name, 'type': RECORD_TYPE_MAP[type], 'data': data}
 
         if 'ttl' in extra:
@@ -216,7 +218,9 @@ class RackspaceDNSDriver(DNSDriver):
         # attribute must always be present.
         extra = extra if extra else {}
 
-        payload = {'name': record.name}
+        name = self._to_full_record_name(domain=record.zone.domain,
+                                         name=record.name)
+        payload = {'name': name}
 
         if data:
             payload['data'] = data
@@ -292,10 +296,11 @@ class RackspaceDNSDriver(DNSDriver):
 
     def _to_record(self, data, zone):
         id = data['id']
-        name = data['name']
+        fqdn = data['name']
+        name = self._to_partial_record_name(domain=zone.domain, name=fqdn)
         type = self._string_to_record_type(data['type'])
         record_data = data['data']
-        extra = {}
+        extra = {'fqdn': fqdn}
 
         if 'ttl' in data:
             extra['ttl'] = data['ttl']
@@ -306,6 +311,32 @@ class RackspaceDNSDriver(DNSDriver):
         record = Record(id=str(id), name=name, type=type, data=record_data,
                         zone=zone, driver=self, extra=extra)
         return record
+
+    def _to_full_record_name(self, domain, name):
+        """
+        Build a FQDN from a domain and record name.
+
+        @param domain: Domain name.
+        @type domain: C{str}
+
+        @param name: Record name.
+        @type name: C{str}
+        """
+        name = '%s.%s' % (name, domain)
+        return name
+
+    def _to_partial_record_name(self, domain, name):
+        """
+        Strip domain portion from the record name.
+
+        @param domain: Domain name.
+        @type domain: C{str}
+
+        @param name: Full record name (fqdn).
+        @type name: C{str}
+        """
+        name = name.replace('.%s' % (domain), '')
+        return name
 
 
 class RackspaceUSDNSDriver(RackspaceDNSDriver):

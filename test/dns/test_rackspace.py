@@ -53,10 +53,12 @@ class RackspaceUSTests(unittest.TestCase):
         records = self.driver.list_records(zone=zone)
 
         self.assertEqual(len(records), 3)
-        self.assertEqual(records[0].name, 'test3.foo4.bar.com')
+        self.assertEqual(records[0].name, 'test3')
         self.assertEqual(records[0].type, RecordType.A)
         self.assertEqual(records[0].data, '127.7.7.7')
         self.assertEqual(records[0].extra['ttl'], 777)
+        self.assertEqual(records[0].extra['fqdn'], 'test3.%s' %
+                         (records[0].zone.domain))
 
     def test_list_records_no_results(self):
         zone = self.driver.list_zones()[0]
@@ -98,7 +100,7 @@ class RackspaceUSTests(unittest.TestCase):
         record = self.driver.get_record(zone_id='12345678',
                                         record_id='23456789')
         self.assertEqual(record.id, 'A-7423034')
-        self.assertEqual(record.name, 'test3.foo4.bar.com')
+        self.assertEqual(record.name, 'test3')
         self.assertEqual(record.type, RecordType.A)
         self.assertEqual(record.extra['comment'], 'lulz')
 
@@ -176,14 +178,15 @@ class RackspaceUSTests(unittest.TestCase):
         zone = self.driver.list_zones()[0]
 
         RackspaceMockHttp.type = 'CREATE_RECORD'
-        record = self.driver.create_record(name='www.bar.foo1.com', zone=zone,
+        record = self.driver.create_record(name='www', zone=zone,
                                            type=RecordType.A, data='127.1.1.1')
 
         self.assertEqual(record.id, 'A-7423317')
-        self.assertEqual(record.name, 'www.bar.foo1.com')
+        self.assertEqual(record.name, 'www')
         self.assertEqual(record.zone, zone)
         self.assertEqual(record.type, RecordType.A)
         self.assertEqual(record.data, '127.1.1.1')
+        self.assertEqual(record.extra['fqdn'], 'www.%s' % (zone.domain))
 
     def test_update_record_success(self):
         zone = self.driver.list_zones()[0]
@@ -191,9 +194,11 @@ class RackspaceUSTests(unittest.TestCase):
         updated_record = self.driver.update_record(record=record,
                                                    data='127.3.3.3')
 
+        self.assertEqual(record.name, 'test3')
         self.assertEqual(record.data, '127.7.7.7')
 
         self.assertEqual(updated_record.id, record.id)
+        self.assertEqual(updated_record.name, record.name)
         self.assertEqual(updated_record.zone, record.zone)
         self.assertEqual(updated_record.type, record.type)
         self.assertEqual(updated_record.data, '127.3.3.3')
