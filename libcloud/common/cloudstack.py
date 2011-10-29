@@ -27,6 +27,7 @@ class CloudStackResponse(JsonResponse): pass
 
 class CloudStackConnection(ConnectionUserAndKey, PollingConnection):
     responseCls = CloudStackResponse
+    poll_interval = 1
     request_method = '_sync_request'
 
     ASYNC_PENDING = 0
@@ -97,7 +98,6 @@ class CloudStackConnection(ConnectionUserAndKey, PollingConnection):
 class CloudStackDriverMixIn(object):
     host = None
     path = None
-    async_poll_frequency = 1
 
     connectionCls = CloudStackConnection
 
