@@ -14,7 +14,7 @@
 # limitations under the License.
 
 __all__ = [
-    'RackspaceUSDNSDriver'
+    'RackspaceUSDNSDriver',
     'RackspaceUKDNSDriver'
 ]
 
