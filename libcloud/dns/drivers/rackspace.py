@@ -176,6 +176,9 @@ class RackspaceDNSDriver(DNSDriver):
         if 'comment' in extra:
             data['comment'] = extra['comment']
 
+        type = type if type else zone.type
+        ttl = ttl if ttl else zone.ttl
+
         self.connection.set_context({'resource': 'zone', 'id': zone.id})
         self.connection.async_request(action='/domains/%s' % (zone.id),
                                       method='PUT', data=data)
@@ -221,6 +224,9 @@ class RackspaceDNSDriver(DNSDriver):
 
         if 'comment' in extra:
             payload['comment'] = extra['comment']
+
+        type = type if type else record.type
+        data = data if data else record.data
 
         self.connection.set_context({'resource': 'record', 'id': record.id})
         self.connection.async_request(action='/domains/%s/records/%s' %
