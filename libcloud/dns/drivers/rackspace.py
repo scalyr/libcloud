@@ -21,7 +21,7 @@ __all__ = [
 import httplib
 import copy
 
-from libcloud.common.base import AsyncConnection
+from libcloud.common.base import PollingConnection
 from libcloud.common.types import LibcloudError
 from libcloud.utils import merge_valid_keys, get_new_obj
 from libcloud.common.rackspace import AUTH_URL_US, AUTH_URL_UK
@@ -77,7 +77,7 @@ class RackspaceDNSResponse(OpenStack_1_1_Response):
         return err
 
 
-class RackspaceDNSConnection(OpenStack_1_1_Connection, AsyncConnection):
+class RackspaceDNSConnection(OpenStack_1_1_Connection, PollingConnection):
     """
     Rackspace DNS Connection class.
     """
