@@ -537,9 +537,13 @@ class Connection(object):
         """
         return data
 
-class AsyncConnection(Connection):
+class PollingConnection(Connection):
     """
     Connection class which can also work with the async APIs.
+
+    After initial requests, this class periodically polls for jobs status and
+    waits until the job has finished.
+    If job doesn't finish in timeout seconds, an Exception thrown.
     """
     poll_interval = 0.5
     timeout = 10

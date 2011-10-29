@@ -19,13 +19,13 @@ import hmac
 import time
 import urllib
 
-from libcloud.common.base import ConnectionUserAndKey, AsyncConnection
+from libcloud.common.base import ConnectionUserAndKey, PollingConnection
 from libcloud.common.base import JsonResponse
 from libcloud.common.types import MalformedResponseError
 
 class CloudStackResponse(JsonResponse): pass
 
-class CloudStackConnection(ConnectionUserAndKey, AsyncConnection):
+class CloudStackConnection(ConnectionUserAndKey, PollingConnection):
     responseCls = CloudStackResponse
     request_method = '_sync_request'
 
