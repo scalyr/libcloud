@@ -18,6 +18,7 @@ __all__ = [
     'RackspaceUKDNSDriver'
 ]
 
+import httplib
 import copy
 
 from libcloud.common.base import AsyncConnection
@@ -58,7 +59,7 @@ class RackspaceDNSResponse(OpenStack_1_1_Response):
         context = self.connection.context
         body = self.parse_body()
 
-        if status == 404:
+        if status == httplib.NOT_FOUND:
             if context['resource'] == 'zone':
                 raise ZoneDoesNotExistError(value='', driver=self,
                                             zone_id=context['id'])
