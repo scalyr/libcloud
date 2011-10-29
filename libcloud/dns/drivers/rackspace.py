@@ -18,8 +18,11 @@ __all__ = [
     'RackspaceUKDNSDriver'
 ]
 
+import copy
+
 from libcloud.common.base import AsyncConnection
 from libcloud.common.types import LibcloudError
+from libcloud.utils import merge_valid_keys, get_new_obj
 from libcloud.common.rackspace import AUTH_URL_US, AUTH_URL_UK
 from libcloud.compute.drivers.openstack import OpenStack_1_1_Connection
 from libcloud.compute.drivers.openstack import OpenStack_1_1_Response
@@ -27,6 +30,9 @@ from libcloud.compute.drivers.openstack import OpenStack_1_1_Response
 from libcloud.dns.types import Provider, RecordType
 from libcloud.dns.types import ZoneDoesNotExistError, RecordDoesNotExistError
 from libcloud.dns.base import DNSDriver, Zone, Record
+
+VALID_ZONE_EXTRA_PARAMS = ['email', 'comment', 'ns1']
+VALID_RECORD_EXTRA_PARAMS = ['ttl', 'comment']
 
 RECORD_TYPE_MAP = {
     RecordType.A: 'A',
@@ -56,6 +62,9 @@ class RackspaceDNSResponse(OpenStack_1_1_Response):
             if context['resource'] == 'zone':
                 raise ZoneDoesNotExistError(value='', driver=self,
                                             zone_id=context['id'])
+            elif context['resource'] == 'record':
+                raise RecordDoesNotExistError(value='', driver=self,
+                                              record_id=context['id'])
 
         if 'code' and 'message' in body:
             err = '%s - %s (%s)' % (body['code'], body['message'],
@@ -119,8 +128,16 @@ class RackspaceDNSDriver(DNSDriver):
         zone = self._to_zone(data=response.object)
         return zone
 
+    def get_record(self, zone_id, record_id):
+        zone = self.get_zone(zone_id=zone_id)
+        self.connection.set_context({'resource': 'record', 'id': record_id})
+        response = self.connection.request(action='/domains/%s/records/%s' %
+                                           (zone_id, record_id)).object
+        record = self._to_record(data=response, zone=zone)
+        return record
+
     def create_zone(self, domain, type='master', ttl=None, extra=None):
-        extra = extra or {}
+        extra = extra if extra else {}
 
         # Email address is required
         if not 'email' in extra:
@@ -141,6 +158,36 @@ class RackspaceDNSDriver(DNSDriver):
         zone = self._to_zone(data=response.object['response']['domains'][0])
         return zone
 
+    def update_zone(self, zone, domain=None, type=None, ttl=None, extra=None):
+        # Only ttl, comment and email address can be changed
+        extra = extra if extra else {}
+
+        if domain:
+            raise LibcloudError('Domain cannot be changed', driver=self)
+
+        data = {}
+
+        if ttl:
+            data['ttl'] = int(ttl)
+
+        if 'email' in extra:
+            data['emailAddress'] = extra['email']
+
+        if 'comment' in extra:
+            data['comment'] = extra['comment']
+
+        self.connection.set_context({'resource': 'zone', 'id': zone.id})
+        self.connection.async_request(action='/domains/%s' % (zone.id),
+                                      method='PUT', data=data)
+        merged = merge_valid_keys(params=copy.deepcopy(zone.extra),
+                                  valid_keys=VALID_ZONE_EXTRA_PARAMS,
+                                  extra=extra)
+        updated_zone = get_new_obj(obj=zone, klass=Zone,
+                                   attributes={'type': type,
+                                               'ttl': ttl,
+                                               'extra': merged})
+        return updated_zone
+
     def create_record(self, name, zone, type, data, extra=None):
         # Name must be a FQDN - e.g. if domain is "foo.com" then a record
         # name is "bar.foo.com"
@@ -158,9 +205,47 @@ class RackspaceDNSDriver(DNSDriver):
                                  zone=zone)
         return record
 
+    def update_record(self, record, name=None, type=None, data=None,
+                      extra=None):
+        # Only data, ttl, and comment attributes can be modified, but name
+        # attribute must always be present.
+        extra = extra if extra else {}
+
+        payload = {'name': record.name}
+
+        if data:
+            payload['data'] = data
+
+        if 'ttl' in extra:
+            payload['ttl'] = extra['ttl']
+
+        if 'comment' in extra:
+            payload['comment'] = extra['comment']
+
+        self.connection.set_context({'resource': 'record', 'id': record.id})
+        self.connection.async_request(action='/domains/%s/records/%s' %
+                                      (record.zone.id, record.id),
+                                      method='PUT', data=payload)
+
+        merged = merge_valid_keys(params=copy.deepcopy(record.extra),
+                                  valid_keys=VALID_RECORD_EXTRA_PARAMS,
+                                  extra=extra)
+        updated_record = get_new_obj(obj=record, klass=Record,
+                                     attributes={'type': type,
+                                                 'data': data,
+                                                 'extra': merged})
+        return updated_record
+
     def delete_zone(self, zone):
         self.connection.set_context({'resource': 'zone', 'id': zone.id})
         self.connection.async_request(action='/domains/%s' % (zone.id),
+                                      method='DELETE')
+        return True
+
+    def delete_record(self, record):
+        self.connection.set_context({'resource': 'record', 'id': record.id})
+        self.connection.async_request(action='/domains/%s/records/%s' %
+                                      (record.zone.id, record.id),
                                       method='DELETE')
         return True
 
