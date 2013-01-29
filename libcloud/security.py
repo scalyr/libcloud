@@ -53,6 +53,9 @@ if environment_cert_file is not None:
         raise ValueError('Certificate file %s doesn\'t exist' %
                          (environment_cert_file))
 
+    if not os.path.isfile(environment_cert_file):
+        raise ValueError('Certificate file can\'t be a directory')
+
     # If a provided file exists we ignore other common paths because we
     # don't want to fall-back to a potentially less restrictive bundle
     CA_CERTS_PATH = [environment_cert_file]

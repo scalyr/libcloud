@@ -44,6 +44,19 @@ class TestHttpLibSSLTests(unittest.TestCase):
         else:
             self.fail('Exception was not thrown')
 
+    def test_custom_ca_path_using_env_var_is_directory(self):
+        file_path  = os.path.dirname(os.path.abspath(__file__))
+        os.environ['SSL_CERT_FILE'] = file_path
+
+        try:
+            reload(libcloud.security)
+        except ValueError:
+            e = sys.exc_info()[1]
+            msg = 'Certificate file can\'t be a directory'
+            self.assertEqual(str(e), msg)
+        else:
+            self.fail('Exception was not thrown')
+
     def test_custom_ca_path_using_env_var_exist(self):
         # When setting a path we don't actually check that a valid CA file is
         # provied.
