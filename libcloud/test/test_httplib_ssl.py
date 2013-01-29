@@ -200,6 +200,9 @@ class TestHttpLibSSLTests(unittest.TestCase):
         try:
             self.httplib_object._setup_verify()
         except RuntimeError:
+            e = sys.exc_info()[1]
+            msg = libcloud.security.CA_CERTS_UNAVAILABLE_ERROR_MSG
+            self.assertEqual(str(e), msg)
             pass
         else:
             self.fail('Exception not thrown')
