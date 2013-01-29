@@ -13,18 +13,47 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import sys
 import unittest
 import os.path
 
 import libcloud.security
+
+from libcloud.utils.py3 import reload
 from libcloud.httplib_ssl import LibcloudHTTPSConnection
+
+ORIGINAL_CA_CERS_PATH = libcloud.security.CA_CERTS_PATH
 
 class TestHttpLibSSLTests(unittest.TestCase):
 
     def setUp(self):
         libcloud.security.VERIFY_SSL_CERT = False
+        libcloud.security.CA_CERTS_PATH = ORIGINAL_CA_CERS_PATH
         self.httplib_object = LibcloudHTTPSConnection('foo.bar')
+
+    def test_custom_ca_path_using_env_var_doesnt_exist(self):
+        os.environ['SSL_CERT_FILE'] = '/foo/doesnt/exist'
+
+        try:
+            reload(libcloud.security)
+        except ValueError:
+            e = sys.exc_info()[1]
+            msg = 'Certificate file /foo/doesnt/exist doesn\'t exist'
+            self.assertEqual(str(e), msg)
+        else:
+            self.fail('Exception was not thrown')
+
+    def test_custom_ca_path_using_env_var_exist(self):
+        # When setting a path we don't actually check that a valid CA file is
+        # provied.
+        # This happens later in the code in httplib_ssl.connect method
+        file_path  = os.path.abspath(__file__)
+        os.environ['SSL_CERT_FILE'] = file_path
+
+        reload(libcloud.security)
+
+        self.assertEqual(libcloud.security.CA_CERTS_PATH, [file_path])
 
     def test_verify_hostname(self):
         cert1 = {'notAfter': 'Feb 16 16:54:50 2013 GMT',
@@ -143,8 +172,10 @@ class TestHttpLibSSLTests(unittest.TestCase):
                          None)
 
     def test_setup_verify(self):
-        # @TODO: catch warnings
-        # non-strict mode,s hould just emit a warning
+        # TODO: catch warnings
+        libcloud.security.CA_CERTS_PATH = []
+
+        # non-strict mode should just emit a warning
         libcloud.security.VERIFY_SSL_CERT = True
         libcloud.security.VERIFY_SSL_CERT_STRICT = False
         self.httplib_object._setup_verify()
@@ -152,9 +183,10 @@ class TestHttpLibSSLTests(unittest.TestCase):
         # strict mode, should throw a runtime error
         libcloud.security.VERIFY_SSL_CERT = True
         libcloud.security.VERIFY_SSL_CERT_STRICT = True
+
         try:
             self.httplib_object._setup_verify()
-        except:
+        except RuntimeError:
             pass
         else:
             self.fail('Exception not thrown')
