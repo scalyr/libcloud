@@ -17,6 +17,9 @@ import os
 import sys
 import unittest
 import os.path
+import warnings
+
+from mock import patch
 
 import libcloud.security
 
@@ -184,14 +187,17 @@ class TestHttpLibSSLTests(unittest.TestCase):
         self.assertEqual(self.httplib_object._get_common_name({}),
                          None)
 
-    def test_setup_verify(self):
-        # TODO: catch warnings
+    @patch('warnings.warn')
+    def test_setup_verify(self, _):
         libcloud.security.CA_CERTS_PATH = []
 
         # non-strict mode should just emit a warning
         libcloud.security.VERIFY_SSL_CERT = True
         libcloud.security.VERIFY_SSL_CERT_STRICT = False
         self.httplib_object._setup_verify()
+
+        warnings.warn.assert_called_once_with(
+            libcloud.security.CA_CERTS_UNAVAILABLE_WARNING_MSG)
 
         # strict mode, should throw a runtime error
         libcloud.security.VERIFY_SSL_CERT = True
@@ -211,24 +217,34 @@ class TestHttpLibSSLTests(unittest.TestCase):
         libcloud.security.VERIFY_SSL_CERT_STRICT = False
         self.httplib_object._setup_verify()
 
-    def test_setup_ca_cert(self):
-        # @TODO: catch warnings
+    @patch('warnings.warn')
+    def test_setup_ca_cert(self, _):
+        # verify = False, _setup_ca_cert should be a no-op
         self.httplib_object.verify = False
         self.httplib_object.strict = False
         self.httplib_object._setup_ca_cert()
 
         self.assertEqual(self.httplib_object.ca_cert, None)
 
+        # verify = True, a valid path is provided, self.ca_cert should be set to
+        # a valid path
         self.httplib_object.verify = True
 
         libcloud.security.CA_CERTS_PATH = [os.path.abspath(__file__)]
         self.httplib_object._setup_ca_cert()
+
         self.assertTrue(self.httplib_object.ca_cert is not None)
 
+        # verify = True, no CA certs are available, warning should be emitted
         libcloud.security.CA_CERTS_PATH = []
         self.httplib_object._setup_ca_cert()
+
+        warnings.warn.assert_called_once_with(
+            libcloud.security.CA_CERTS_UNAVAILABLE_WARNING_MSG)
+
         self.assertFalse(self.httplib_object.ca_cert)
         self.assertFalse(self.httplib_object.verify)
+
 
 if __name__ == '__main__':
     sys.exit(unittest.main())
