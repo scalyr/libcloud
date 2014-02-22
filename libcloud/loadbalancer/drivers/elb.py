@@ -63,6 +63,42 @@ class ElasticLBDriver(Driver):
         data = self.connection.request(ROOT, params=params).object
         return self._to_balancers(data)
 
+    def ex_list_balancer_policy(self):
+        params = {'Action': 'DescribeLoadBalancerPolicies'}
+        data = self.connection.request(ROOT, params=params).object
+        return self._to_ex_policy(data)
+
+    def ex_list_balancer_policy_types(self):
+        params = {'Action': 'DescribeLoadBalancerPolicyTypes'}
+        data = self.connection.request(ROOT, params=params).object
+        return self._to_ex_policy_types(data)
+
+    def ex_create_balancer_policy(self, balancer, policy_name, policy_type):
+        policy_name = self.ex_list_balancer_policy()[0]
+        policy_type =   self.ex_list_balancer_policy_types()[0]
+        
+        params = {
+            'Action': 'CreateLoadBalancerPolicy',
+            'LoadBalancerName': balancer.id,
+            #'PolicyAttributes.member.1.AttributeName': '' ,
+            #'PolicyAttributes.member.1.AttributeValue': '',
+            'PolicyName' : str(policy_name),
+            'PolicyTypeName' : str(policy_type)
+        }
+        
+        data = self.connection.request(ROOT, params=params).object
+        return True
+
+    def ex_destroy_balancer_policy(self, balancer, policy_name):
+        params = {
+            'Action': 'DeleteLoadBalancerPolicy',
+            'LoadBalancerName': balancer.id,
+            'PolicyName': policy_name
+        }
+        
+        data = self.connection.request(ROOT, params=params).object
+        return True
+
     def create_balancer(self, name, port, protocol, algorithm, members,
                         ex_members_availability_zones=None):
         if ex_members_availability_zones is None:
@@ -131,6 +167,16 @@ class ElasticLBDriver(Driver):
 
     def balancer_list_members(self, balancer):
         return balancer._members
+
+    def _to_ex_policy(self, data):
+        xpath = 'DescribeLoadBalancerPoliciesResult/PolicyDescriptions/member'
+        return [findtext(element=el, xpath='PolicyName', namespace=NS)
+                for el in findall(element=data, xpath=xpath, namespace=NS)]
+    
+    def _to_ex_policy_types(self, data):
+        xpath = 'DescribeLoadBalancerPolicyTypesResult'
+        return [findtext(element=el, xpath='PolicyTypeName', namespace=NS)
+                for el in findall(element=data, xpath=xpath, namespace=NS)]
 
     def _to_balancers(self, data):
         xpath = 'DescribeLoadBalancersResult/LoadBalancerDescriptions/member'
