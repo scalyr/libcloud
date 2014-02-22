@@ -88,6 +88,28 @@ class ElasticLBTests(unittest.TestCase):
 
         self.assertTrue(balancer.detach_member(member))
 
+    def test_ex_list_balancer_policy(self):
+        policies = self.driver.ex_list_balancer_policy()
+
+        self.assertTrue('MyDurationStickyPolicy' in policies)
+
+    def test_ex_list_balancer_policy_types(self):
+        policy_types = self.driver.ex_list_balancer_policy_types()
+        
+        self.assertTrue('SSLNegotiationPolicyType' in policy_types)
+        self.assertTrue('ProxyProtocolPolicyType' in policy_types)
+
+    def test_ex_create_balancer_policy(self):
+        balancer = self.driver.get_balancer(balancer_id='tests')
+        
+        self.assertTrue(self.driver.ex_create_balancer_policy(balancer, '', ''))
+
+    def test_ex_destroy_balancer_policy(self):
+        balancer = self.driver.get_balancer(balancer_id='tests')
+        
+        self.assertTrue(self.driver.ex_destroy_balancer_policy(balancer, 'ProxyProtocolPolicyType'))
+    
+
 
 class ElasticLBMockHttp(MockHttpTestCase):
     fixtures = LoadBalancerFileFixtures('elb')
@@ -105,6 +127,18 @@ class ElasticLBMockHttp(MockHttpTestCase):
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
 
     def _2012_06_01_DeleteLoadBalancer(self, method, url, body, headers):
+        body = ''
+        return (httplib.OK, body, {}, httplib.responses[httplib.OK])
+
+    def _2012_06_01_DescribeLoadBalancerPolicies(self, method, url, body, headers):
+        body = self.fixtures.load('describe_load_balancer_policies.xml')
+        return (httplib.OK, body, {}, httplib.responses[httplib.OK])
+    
+    def _2012_06_01_DescribeLoadBalancerPolicyTypes(self, method, url, body, headers):
+        body = self.fixtures.load('describe_load_balancers_policy_types.xml')
+        return (httplib.OK, body, {}, httplib.responses[httplib.OK])
+
+    def _2012_06_01_DeleteLoadBalancerPolicy(self, method, url, body, headers):
         body = ''
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
 
