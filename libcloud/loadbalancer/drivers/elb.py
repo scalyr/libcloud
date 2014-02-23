@@ -63,33 +63,67 @@ class ElasticLBDriver(Driver):
         data = self.connection.request(ROOT, params=params).object
         return self._to_balancers(data)
 
-    def ex_list_balancer_policy(self):
-        params = {'Action': 'DescribeLoadBalancerPolicies'}
+    def ex_list_balancer_policies(self, balancer):
+        """
+        Return a list of policy description structures.
+
+        :rtype: ``list`` of ``str``
+        """
+        params = {
+            'Action': 'DescribeLoadBalancerPolicies',
+            'LoadBalancerName': balancer.id
+        }
         data = self.connection.request(ROOT, params=params).object
-        return self._to_ex_policy(data)
+        return self._to_policies(data)
 
     def ex_list_balancer_policy_types(self):
+        """
+        Return a list of policy type description structures.
+
+        :rtype: ``list`` of ``str``
+        """
         params = {'Action': 'DescribeLoadBalancerPolicyTypes'}
         data = self.connection.request(ROOT, params=params).object
-        return self._to_ex_policy_types(data)
+        return self._to_policy_types(data)
 
     def ex_create_balancer_policy(self, balancer, policy_name, policy_type):
-        policy_name = self.ex_list_balancer_policy()[0]
-        policy_type =   self.ex_list_balancer_policy_types()[0]
+        """
+        Create a new load balancer policy
+
+        :param LoadBalancerName: Name load balancer 
+        :type  LoadBalancerName: ``str``
+
+        :param PolicyName: Name of the load balancer policy being created
+        :type  PolicyName: ``str``
+
+        :param PolicyTypeName: Name of the base policy type being used to create this policy.
+        :type  PolicyTypeName: ``str``
+        """
+        policy_name = policy_name
+        policy_type = policy_type
         
         params = {
             'Action': 'CreateLoadBalancerPolicy',
             'LoadBalancerName': balancer.id,
             #'PolicyAttributes.member.1.AttributeName': '' ,
             #'PolicyAttributes.member.1.AttributeValue': '',
-            'PolicyName' : str(policy_name),
-            'PolicyTypeName' : str(policy_type)
+            'PolicyName': policy_name,
+            'PolicyTypeName': policy_type
         }
         
         data = self.connection.request(ROOT, params=params).object
-        return True
+        return response.status == httplib.OK
 
-    def ex_destroy_balancer_policy(self, balancer, policy_name):
+    def ex_delete_balancer_policy(self, balancer, policy_name):
+        """
+        Delete a load balancer policy
+
+        :param LoadBalancerName: Name load balancer 
+        :type  LoadBalancerName: ``str``
+
+        :param PolicyName: Mnemonic name for the policy being deleted. 
+        :type  PolicyName: ``str``
+        """
         params = {
             'Action': 'DeleteLoadBalancerPolicy',
             'LoadBalancerName': balancer.id,
@@ -97,7 +131,30 @@ class ElasticLBDriver(Driver):
         }
         
         data = self.connection.request(ROOT, params=params).object
-        return True
+        return response.status == httplib.DELETED
+
+    def ex_set_balancer_policies_listener(self, balancer):
+        """
+        Associates, updates, or disables a policy with a listener on the load balancer
+
+        :param LoadBalancerName: Name of load balancer 
+        :type  LoadBalancerName: ``str``
+
+        :param LoadBalancerPort: load balancer Port number
+        :type  LoadBalancerPort: ``str``
+
+        :param PolicyNames.member.1: List of policies to be associated with the listener.
+        :type  PolicyNames.member.1: ``string list``
+        """
+        params = {
+            'Action': 'SetLoadBalancerPoliciesOfListener',
+            'LoadBalancerName': balancer.id,
+            'LoadBalancerPort': balancer.port,
+            'PolicyNames.member.1': self.ex_list_balancer_policies(balancer)
+        }
+
+        data = self.connection.request(ROOT, params=params).object
+        return response.status == httplib.OK
 
     def create_balancer(self, name, port, protocol, algorithm, members,
                         ex_members_availability_zones=None):
@@ -168,12 +225,12 @@ class ElasticLBDriver(Driver):
     def balancer_list_members(self, balancer):
         return balancer._members
 
-    def _to_ex_policy(self, data):
+    def _to_policies(self, data):
         xpath = 'DescribeLoadBalancerPoliciesResult/PolicyDescriptions/member'
         return [findtext(element=el, xpath='PolicyName', namespace=NS)
                 for el in findall(element=data, xpath=xpath, namespace=NS)]
     
-    def _to_ex_policy_types(self, data):
+    def _to_policy_types(self, data):
         xpath = 'DescribeLoadBalancerPolicyTypesResult'
         return [findtext(element=el, xpath='PolicyTypeName', namespace=NS)
                 for el in findall(element=data, xpath=xpath, namespace=NS)]
