@@ -165,7 +165,7 @@ class ElasticLBMockHttp(MockHttpTestCase):
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
 
     def _2012_06_01_SetLoadBalancerPoliciesForBackendServer(self, method, url, body, headers):
-        body =  self.fixtures.load('set_load_balancer_policies_for_backend_server.xml')
+        body = self.fixtures.load('set_load_balancer_policies_for_backend_server.xml')
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
 
 
