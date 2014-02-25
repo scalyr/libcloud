@@ -88,27 +88,41 @@ class ElasticLBTests(unittest.TestCase):
 
         self.assertTrue(balancer.detach_member(member))
 
-    def test_ex_list_balancer_policy(self):
-        policies = self.driver.ex_list_balancer_policy()
+    def test_ex_list_balancer_policies(self):
+        balancer = self.driver.get_balancer(balancer_id='tests')
+        policies = self.driver.ex_list_balancer_policies(balancer)
 
         self.assertTrue('MyDurationStickyPolicy' in policies)
 
     def test_ex_list_balancer_policy_types(self):
         policy_types = self.driver.ex_list_balancer_policy_types()
         
-        self.assertTrue('SSLNegotiationPolicyType' in policy_types)
         self.assertTrue('ProxyProtocolPolicyType' in policy_types)
 
     def test_ex_create_balancer_policy(self):
         balancer = self.driver.get_balancer(balancer_id='tests')
         
-        self.assertTrue(self.driver.ex_create_balancer_policy(balancer, '', ''))
+        self.assertTrue(self.driver.ex_create_balancer_policy(balancer, 'MyDurationProxyPolicy', 'ProxyProtocolPolicyType'))
 
-    def test_ex_destroy_balancer_policy(self):
+    def test_ex_delete_balancer_policy(self):
         balancer = self.driver.get_balancer(balancer_id='tests')
         
-        self.assertTrue(self.driver.ex_destroy_balancer_policy(balancer, 'ProxyProtocolPolicyType'))
+        self.assertTrue(self.driver.ex_delete_balancer_policy(balancer, 'MyDurationProxyPolicy'))
+
+    def test_ex_set_balancer_policies_listener(self):
+        balancer = self.driver.get_balancer(balancer_id='tests')
+
+        self.assertTrue(self.driver.ex_set_balancer_policies_listener(balancer, 80, ['MyDurationStickyPolicy']))
+
+    def test_ex_set_balancer_policies_backend_server(self):
+        balancer = self.driver.get_balancer(balancer_id='tests')
+
+        self.assertTrue(self.driver.ex_set_balancer_policies_backend_server(balancer, 80, ['MyDurationStickyPolicy']))
     
+    def text_ex_create_balancer_listeners(self):
+        balancer = self.driver.get_balancer(balancer_id='tests')
+
+        self.assertTrue(self.driver.ex_create_balancer_listeners(balancer, [[1024, 65533, 'HTTP']]))
 
 
 class ElasticLBMockHttp(MockHttpTestCase):
@@ -126,6 +140,10 @@ class ElasticLBMockHttp(MockHttpTestCase):
         body = self.fixtures.load('deregister_instances_from_load_balancer.xml')
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
 
+    def _2012_06_01_CreateLoadBalancerPolicy(self, method, url, body, headers):
+        body = self.fixtures.load('create_load_balancer_policy.xml')
+        return (httplib.OK, body, {}, httplib.responses[httplib.OK])
+
     def _2012_06_01_DeleteLoadBalancer(self, method, url, body, headers):
         body = ''
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
@@ -140,6 +158,14 @@ class ElasticLBMockHttp(MockHttpTestCase):
 
     def _2012_06_01_DeleteLoadBalancerPolicy(self, method, url, body, headers):
         body = ''
+        return (httplib.OK, body, {}, httplib.responses[httplib.OK])
+
+    def _2012_06_01_SetLoadBalancerPoliciesOfListener(self, method, url, body, headers):
+        body = self.fixtures.load('set_load_balancer_policies_of_listener.xml')
+        return (httplib.OK, body, {}, httplib.responses[httplib.OK])
+
+    def _2012_06_01_SetLoadBalancerPoliciesForBackendServer(self, method, url, body, headers):
+        body =  self.fixtures.load('set_load_balancer_policies_for_backend_server.xml')
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
 
 
