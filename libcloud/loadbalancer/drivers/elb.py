@@ -330,7 +330,7 @@ class ElasticLBDriver(Driver):
         """
         return parameter list
         """
-        if isinstance(items, basestring):
+        if isinstance(items, str):
             items = [items]
         for index, item in enumerate(items):
             params[label % (index + 1)] = item
