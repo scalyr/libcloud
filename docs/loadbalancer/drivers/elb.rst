@@ -2,9 +2,10 @@
 Elastic Load Balancing interface for AWS
 ========================================
 
-This tutorial will guide you about libcloud Elastic Load Balancing interface for AWS.
+This tutorial will focus on libcloud Elastic Load Balancing interface for AWS.
 
-Refer more about ELB at `AWS Site <http://docs.aws.amazon.com/ElasticLoadBalancing/latest/APIReference/Welcome.html>_`
+Refer more about ELB at AWS Site
+      http://docs.aws.amazon.com/ElasticLoadBalancing/latest/APIReference/Welcome.html
 
 Creating a Connection
 ---------------------
@@ -82,6 +83,7 @@ To disable the policy
     >>> elb.ex_set_balancer_policies_backend_server(name=balancer_name,
                                                     port=80,
                                                     policies='')
+    True
 
 Enable/Diable Policy on Listeners
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
