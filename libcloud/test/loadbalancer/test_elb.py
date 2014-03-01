@@ -101,37 +101,36 @@ class ElasticLBTests(unittest.TestCase):
 
     def test_ex_create_balancer_policy(self):
         self.assertTrue(
-            self.driver.ex_create_balancer_policy(name='tests',
-                                                  policy_name='My    \
-                                                  DurationProxyPolicy',
-                                                  policy_type='Proxy \
-                                                  ProtocolPolicyType'))
+            self.driver.ex_create_balancer_policy(
+                name='tests',
+                policy_name='MyDurationProxyPolicy',
+                policy_type='ProxyProtocolPolicyType'))
 
     def test_ex_delete_balancer_policy(self):
         self.assertTrue(
-            self.driver.ex_delete_balancer_policy(name='tests',
-                                                  policy_name='My \
-                                                  DurationProxyPolicy'))
+            self.driver.ex_delete_balancer_policy(
+                name='tests',
+                policy_name='MyDurationProxyPolicy'))
 
     def test_ex_set_balancer_policies_listener(self):
         self.assertTrue(
-            self.driver.ex_set_balancer_policies_listener(name='tests',
-                                                          port=80,
-                                                          policies=['My \
-                                                 DurationStickyPolicy']))
+            self.driver.ex_set_balancer_policies_listener(
+                name='tests',
+                port=80,
+                policies=['MyDurationStickyPolicy']))
 
     def test_ex_set_balancer_policies_backend_server(self):
         self.assertTrue(
-            self.driver.ex_set_balancer_policies_backend_server(name='tests',
-                                                                instance_port=80,
-                                                                policies=['My \
-                                                       DurationProxyPolicy']))
+            self.driver.ex_set_balancer_policies_backend_server(
+                name='tests',
+                instance_port=80,
+                policies=['MyDurationProxyPolicy']))
 
     def text_ex_create_balancer_listeners(self):
         self.assertTrue(
-            self.driver.ex_create_balancer_listeners(name='tests',
-                                                     listeners=[[1024, 65533,
-                                                                 'HTTP']]))
+            self.driver.ex_create_balancer_listeners(
+                name='tests',
+                listeners=[[1024, 65533, 'HTTP']]))
 
 
 class ElasticLBMockHttp(MockHttpTestCase):
@@ -147,7 +146,8 @@ class ElasticLBMockHttp(MockHttpTestCase):
 
     def _2012_06_01_DeregisterInstancesFromLoadBalancer(self, method, url,
                                                         body, headers):
-        body = self.fixtures.load('deregister_instances_from_load_balancer.xml')
+        body = self.fixtures.load(
+            'deregister_instances_from_load_balancer.xml')
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
 
     def _2012_06_01_CreateLoadBalancerPolicy(self, method, url, body, headers):
@@ -179,7 +179,8 @@ class ElasticLBMockHttp(MockHttpTestCase):
 
     def _2012_06_01_SetLoadBalancerPoliciesForBackendServer(self, method, url,
                                                             body, headers):
-        body = self.fixtures.load('set_load_balancer_policies_for_backend_server.xml')
+        body = self.fixtures.load(
+            'set_load_balancer_policies_for_backend_server.xml')
         return (httplib.OK, body, {}, httplib.responses[httplib.OK])
 
 
