@@ -1,27 +1,44 @@
-========================================
 Elastic Load Balancing interface for AWS
 ========================================
 
+AWS Elastic Load Balancing is a cost-effective and easy to use web service to
+help you improve the availability and scalability of your application running
+on Amazon Elastic Cloud Compute (Amazon EC2).It makes it easy for you to
+distribute application loads betweentwo or more EC2 instances. Elastic Load
+Balancing supports the growth in traffic of your application by enabling
+availability through redundancy.
+
 This tutorial will focus on libcloud Elastic Load Balancing interface for AWS.
 
-Refer more about ELB at AWS Site
-      http://docs.aws.amazon.com/ElasticLoadBalancing/latest/APIReference/Welcome.html
+Refer more about ELB at  .. _`AWS Site`: http://docs.aws.amazon.com/ElasticLoadBalancing/latest/APIReference/Welcome.html
 
 Creating a Connection
 ---------------------
 
 The first step in accessing ELB is to create a connection to the service.
 
-    >>> from libcloud.loadbalancer.types import Provider, State
-    >>> from libcloud.loadbalancer.providers import get_driver
-    >>> driver = get_driver(Provider.ELB)
-    >>> elb = driver('access key id', 'secret key id', region='')
+So, when you instantiate a ELB driver you need to pass the following arguments
+to the driver constructor:
 
-'access key' and 'secret key' id's can be found at security credentials page of AWS management console.
+* ``key`` - Your AWS API key
+* ``secret`` - Your AWS secret key
+* ``region`` - The region of your AWS instance host point
+  (e.g ``us-west-2`` for ``US West (Oregon) Region``)
+
+Typically this will lead to:
+
+.. literalinclude:: /examples/loadbalancer/elb/create_lb_connection_for_aws.py
+:language: python
+
+if everythings gone well, means if your console has not yelled any error then
+move ahead
+
+by the way if have difficulty in getting your 'access key' and 'secret key'
+id's, they can be found at security credentials page ofAWS management console.
 
 
 Getting Existing Load Balancers
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------
 
 To retrieve any exiting load balancers:
 
@@ -31,7 +48,8 @@ To retrieve any exiting load balancers:
 
 
 Creating New Load Balancers
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------
+
 To create new load balancer initialise some members for the load balancer:
 
     >>> members = (Member(None, 'IP', Port),
@@ -44,7 +62,8 @@ To create new load balancer initialise some members for the load balancer:
     [<LoadBalancer: id=balancer_id, name=balancer_name, state=balancer_state>]
 
 Creating Load Balancer Policy
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
+
 To creates a new policy for a load balancer that contains the necessary attributes depending on the policy type
 
     >>> elb.ex_create_balancer_policy(name=balancer_name,
@@ -70,7 +89,8 @@ To delete a policy associated with the load balancer
     True
 
 Enable/Disable Policy on Backend server
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------------
+
 To enable the policies on the server we need to call "SetLoadBalancerPoliciesForBackendServer" action.
 
     >>> elb.ex_set_balancer_policies_backend_server(name=balancer_name,
@@ -86,7 +106,8 @@ To disable the policy
     True
 
 Enable/Diable Policy on Listeners
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------
+
 To create one or more listeners on a load balancer for the specified port
 
     >>> elb.ex_create_balancer_listeners(name=balancer_name,
