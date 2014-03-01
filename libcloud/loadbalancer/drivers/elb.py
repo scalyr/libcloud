@@ -184,7 +184,8 @@ class ElasticLBDriver(Driver):
         }
 
         if policy_attributes is not None:
-            for index, (name, value) in enumerate(policy_attributes.iteritems(), 1):
+            for index, (name, value) in enumerate(
+                    policy_attributes.iteritems(), 1):
                 params['PolicyAttributes.member.%d. \
                         AttributeName' % (index)] = name
                 params['PolicyAttributes.member.%d. \
@@ -304,7 +305,8 @@ class ElasticLBDriver(Driver):
                 for el in findall(element=data, xpath=xpath, namespace=NS)]
 
     def _to_policy_types(self, data):
-        xpath = 'DescribeLoadBalancerPolicyTypesResult/PolicyTypeDescriptions/member'
+        xpath = 'DescribeLoadBalancerPolicyTypesResult/'
+        xpath += 'PolicyTypeDescriptions/member'
         return [findtext(element=el, xpath='PolicyTypeName', namespace=NS)
                 for el in findall(element=data, xpath=xpath, namespace=NS)]
 
