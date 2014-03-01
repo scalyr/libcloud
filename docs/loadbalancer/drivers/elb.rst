@@ -10,7 +10,7 @@ availability through redundancy.
 
 This tutorial will focus on libcloud Elastic Load Balancing interface for AWS.
 
-Refer more about ELB at  .. _`AWS Site`: http://docs.aws.amazon.com/ElasticLoadBalancing/latest/APIReference/Welcome.html
+Refer more about ELB at _`AWS Site`: http://docs.aws.amazon.com/ElasticLoadBalancing/latest/APIReference/Welcome.html
 
 Creating a Connection
 ---------------------
@@ -28,7 +28,7 @@ to the driver constructor:
 Typically this will lead to:
 
 .. literalinclude:: /examples/loadbalancer/elb/create_lb_connection_for_aws.py
-:language: python
+ :language: python
 
 if everythings gone well, means if your console has not yelled any error then
 move ahead
