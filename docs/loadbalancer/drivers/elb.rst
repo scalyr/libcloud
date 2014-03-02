@@ -2,7 +2,7 @@ Elastic Load Balancing interface for AWS
 ========================================
 
 What is Elastic Load Balancing?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------
 
 Amazon Web Services (AWS) provides Elastic Load Balancing to automatically
 distribute incoming web traffic across multiple Amazon Elastic Compute Cloud
@@ -18,7 +18,7 @@ Elastic Load Balancing, so your servers can focus on their main task.
 
 
 Ok Now Tell me some advantages of using Elastic Load Balancing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------------------------
 
 * Distribution of requests to Amazon EC2 instances (servers)in multiple
   vailability Zones so that the risk of overloading one single instance
@@ -34,7 +34,7 @@ Ok Now Tell me some advantages of using Elastic Load Balancing
   Internet Protocol version 6 (IPv6).
 
 "How it works?" would be nice to share
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------
 
 Elastic Load Balancing consists of two components: the load balancers and
 the controller service. The load balancers monitor the traffic and handle
@@ -53,8 +53,9 @@ verifying that the load balancers are functioning properly.
 * Then load balancer routes the client request to the healthy EC2 application
   instance identified in the previous step.
 
-That's not enough, you want to learn more about ELB, then Refer
-.. _`AWS Site`: http://docs.aws.amazon.com/ElasticLoadBalancing/latest/APIReference/Welcome.html/
+That's not enough, you want to learn more about ELB, then Refer `AWS site
+<http://docs.aws.amazon.com/ElasticLoadBalancing/latest/APIReference/Welcome.html/>`_.
+
 
 Now lets dive into the tutorial which will focus on libcloud Elastic
 Load Balancing interface for AWS.
@@ -75,7 +76,7 @@ to the driver constructor:
 Typically this will lead to:
 
 .. literalinclude:: /examples/loadbalancer/elb/create_lb_connection_for_aws.py
- :language: python
+   :language: python
 
 if everything gone well; means if your console has not yelled any error then
 your connection has been established.
@@ -108,7 +109,7 @@ Getting Existing Load Balancers
 
 To retrieve any exiting load balancers available;
 .. literalinclude:: /examples/loadbalancer/elb/list_load_balancer.py
- :language: python
+   :language: python
 
 this will return you a list of load balancers
 
@@ -121,7 +122,7 @@ To create new load balancer initialise some members for the load balancer
 first
 
 .. literalinclude:: /examples/loadbalancer/elb/create_load_balancer.py
- :language: python
+   :language: python
 
 Ok if everything is fine; you will see this on your python shell screen
 `[<LoadBalancer: id='MyLB', name='MyLB', state=1]`
@@ -135,7 +136,7 @@ To creates a new policy for a load balancer that contains the necessary
 attributes depending on the policy type
 
 .. literalinclude:: /examples/loadbalancer/elb/create_lb_policy.py
- :language: python
+   :language: python
 
 If you get `True', then congratulation you have succesfully created
 the load balancer policy.
@@ -144,14 +145,14 @@ Now there are some extension methods to look on
 To get all policy associated with the load balancer
 
 .. literalinclude:: /examples/loadbalancer/elb/ex_list_balancer_policies.py
- :language: python
+   :language: python
 
 you will get output something like this ['EnableProxyProtocol']
 
 To get all the policy types available
 
 .. literalinclude:: /examples/loadbalancer/elb/ex_list_balancer_policy_types.py
- :language: python
+   :language: python
 
  It will return a list of available policy types
  ['EnableProxyProtocolType']
@@ -159,7 +160,7 @@ To get all the policy types available
 To delete a policy associated with the load balancer
 
 .. literalinclude:: /examples/loadbalancer/elb/ex_delete_balancer_policy.py
- :language: python
+   :language: python
 
  Will return `True` if it deletes the policy successfully.
 
@@ -167,7 +168,8 @@ Enable/Disable Policy on Backend server
 ---------------------------------------
 
 Wait! first tell me about Policies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------
+
 A security policy is a combination of SSL Protocols, SSL Ciphers, and
 the Server Order Preference option. For more information about
 configuring SSL connection for your load balancer
@@ -182,7 +184,7 @@ To enable the policies on the server we need to call
 "SetLoadBalancerPoliciesForBackendServer" action.
 
 .. literalinclude:: /examples/loadbalancer/elb/ex_set_balancer_policies_backened_server.py
- :language: python
+   :language: python
 
  Will return `True` if it sets the policies successfully on backend server.
 
@@ -193,7 +195,8 @@ Enable/Diable Policy on Listeners
 ---------------------------------
 
 I don't have any idea about`listeners`?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------
+
 A listener is a process that listens for connection requests.
 It is configured with a protocol and a port number for front-end
 (client to load balancer) and back-end (load balancer to back-end instance)
@@ -208,7 +211,7 @@ connections over the TCP layer.
 To create one or more listeners on a load balancer for the specified port
 
 .. literalinclude:: /examples/loadbalancer/elb/ex_create_balancer_listeners.py
- :language: python
+   :language: python
 
 Will return `True` if it creates load balancer listeners successfully.
 
@@ -216,7 +219,7 @@ As mentioned above for backend Server, to enable the policies on the listeners,
 need to call "SetLoadBalancerPoliciesOfListener" action
 
 .. literalinclude:: /examples/loadbalancer/elb/ex_set_balancer_policies_listener.py
- :language: python
+   :language: python
 
 Will return `True` if it sets load balancer policies for listeners successfully.
 
@@ -230,6 +233,6 @@ So now we have come to the end of tutorial. This last program file implements al
 the above attributes of ELB driver that we have discussed.
 
 .. literalinclude:: /examples/loadbalancer/elb/complete_tut.py
- :language: python
+   :language: python
 
 
