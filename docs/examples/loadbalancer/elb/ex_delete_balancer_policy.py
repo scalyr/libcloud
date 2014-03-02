@@ -11,5 +11,4 @@ print driver.list_balancers()
 
 driver.ex_delete_balancer_policy(
     name='MyLB',
-    policy_name='EnableProxyProtocol',
-    )
+    policy_name='EnableProxyProtocol')
