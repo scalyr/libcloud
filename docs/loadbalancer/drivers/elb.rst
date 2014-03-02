@@ -2,7 +2,7 @@ Elastic Load Balancing interface for AWS
 ========================================
 
 What is Elastic Load Balancing?
-------------------------------
+-------------------------------
 
 Amazon Web Services (AWS) provides Elastic Load Balancing to automatically
 distribute incoming web traffic across multiple Amazon Elastic Compute Cloud
@@ -18,7 +18,7 @@ Elastic Load Balancing, so your servers can focus on their main task.
 
 
 Ok Now Tell me some advantages of using Elastic Load Balancing
---------------------------------------------------------------
+---------------------------------------------------------------
 
 * Distribution of requests to Amazon EC2 instances (servers)in multiple
   vailability Zones so that the risk of overloading one single instance
@@ -60,8 +60,8 @@ That's not enough, you want to learn more about ELB, then Refer `AWS site
 Now lets dive into the tutorial which will focus on libcloud Elastic
 Load Balancing interface for AWS.
 
-Creating a Connection
----------------------
+1. Creating a Connection
+-------------------------
 
 The first step in accessing ELB is to create a connection to the service.
 
@@ -91,7 +91,7 @@ The base `libcloud` ELB API allows you to:
 * list protocols related to load balancer
 
 Non-standard functionality and extension methods
-------------------------------------------------
+-------------------------------------------------
 
 The AWS ELB driver exposes a lot of `libcloud` non-standard
 functionalities through extension methods and arguments.
@@ -104,8 +104,8 @@ These functionalities include:
 * create listeners for load balancer
 * enable/disable policies on backend server & listeners
 
-Getting Existing Load Balancers
--------------------------------
+2. Getting Existing Load Balancers
+-----------------------------------
 
 To retrieve any exiting load balancers available
 
@@ -115,8 +115,8 @@ To retrieve any exiting load balancers available
 this will return you a list of load balancers
 |``[<LoadBalancer: id=balancer_id, name=balancer_name, state=balancer_state>]``
 
-Creating New Load Balancers
----------------------------
+3. Creating New Load Balancers
+-------------------------------
 
 To create new load balancer initialise some members for the load balancer
 first
@@ -129,8 +129,8 @@ Ok if everything is fine; you will see this on your python shell screen
 
 note: ``state`` value may differ
 
-Creating Load Balancer Policy
------------------------------
+4. Creating Load Balancer Policy
+--------------------------------
 
 To creates a new policy for a load balancer that contains the necessary
 attributes depending on the policy type
@@ -138,7 +138,7 @@ attributes depending on the policy type
 .. literalinclude:: /examples/loadbalancer/elb/create_lb_policy.py
    :language: python
 
-If you get ``True'`, then congratulation you have succesfully created
+If you get ``True``, then congratulation you have succesfully created
 the load balancer policy.
 
 Now there are some extension methods to look on
@@ -165,8 +165,8 @@ To delete a policy associated with the load balancer
 
  Will return ``True`` if it deletes the policy successfully.
 
-Enable/Disable Policy on Backend server
----------------------------------------
+5. Enable/Disable Policy on Backend server
+-------------------------------------------
 
 Wait! first tell me about Policies
 ----------------------------------
@@ -175,9 +175,10 @@ A security policy is a combination of SSL Protocols, SSL Ciphers, and
 the Server Order Preference option. For more information about
 configuring SSL connection for your load balancer
 
-Two Types:
+Two Types
+
 * Predefined Security Policy—A list of predefined SSL negotiation
-  configurations with enabled ciphers and protocols.
+  configurations with enabled ciphers and protocols
 * Custom Security Policy—A list of ciphers and protocols that you
   specify to create a custom negotiation configuration
 
@@ -192,7 +193,7 @@ To enable the policies on the server we need to call
 To disable the policy you just need to pass the policies parameter as empty
 list
 
-Enable/Diable Policy on Listeners
+6. Enable/Diable Policy on Listeners
 ---------------------------------
 
 I don't have any idea about`listeners`?
