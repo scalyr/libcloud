@@ -107,13 +107,13 @@ These functionalities include:
 Getting Existing Load Balancers
 -------------------------------
 
-To retrieve any exiting load balancers available;
+To retrieve any exiting load balancers available
+
 .. literalinclude:: /examples/loadbalancer/elb/list_load_balancer.py
    :language: python
 
 this will return you a list of load balancers
-
-`[<LoadBalancer: id=balancer_id, name=balancer_name, state=balancer_state>]`
+|``[<LoadBalancer: id=balancer_id, name=balancer_name, state=balancer_state>]``
 
 Creating New Load Balancers
 ---------------------------
@@ -125,9 +125,9 @@ first
    :language: python
 
 Ok if everything is fine; you will see this on your python shell screen
-`[<LoadBalancer: id='MyLB', name='MyLB', state=1]`
+|``[<LoadBalancer: id='MyLB', name='MyLB', state=1]``
 
-note: `state` value may differ
+note: ``state`` value may differ
 
 Creating Load Balancer Policy
 -----------------------------
@@ -138,7 +138,7 @@ attributes depending on the policy type
 .. literalinclude:: /examples/loadbalancer/elb/create_lb_policy.py
    :language: python
 
-If you get `True', then congratulation you have succesfully created
+If you get ``True'`, then congratulation you have succesfully created
 the load balancer policy.
 
 Now there are some extension methods to look on
@@ -147,7 +147,8 @@ To get all policy associated with the load balancer
 .. literalinclude:: /examples/loadbalancer/elb/ex_list_balancer_policies.py
    :language: python
 
-you will get output something like this ['EnableProxyProtocol']
+you will get output something like this
+| ``['EnableProxyProtocol']``
 
 To get all the policy types available
 
@@ -155,14 +156,14 @@ To get all the policy types available
    :language: python
 
  It will return a list of available policy types
- ['EnableProxyProtocolType']
+ |``['EnableProxyProtocolType']``
 
 To delete a policy associated with the load balancer
 
 .. literalinclude:: /examples/loadbalancer/elb/ex_delete_balancer_policy.py
    :language: python
 
- Will return `True` if it deletes the policy successfully.
+ Will return ``True`` if it deletes the policy successfully.
 
 Enable/Disable Policy on Backend server
 ---------------------------------------
@@ -186,7 +187,7 @@ To enable the policies on the server we need to call
 .. literalinclude:: /examples/loadbalancer/elb/ex_set_balancer_policies_backened_server.py
    :language: python
 
- Will return `True` if it sets the policies successfully on backend server.
+ Will return ``True`` if it sets the policies successfully on backend server.
 
 To disable the policy you just need to pass the policies parameter as empty
 list
@@ -213,15 +214,15 @@ To create one or more listeners on a load balancer for the specified port
 .. literalinclude:: /examples/loadbalancer/elb/ex_create_balancer_listeners.py
    :language: python
 
-Will return `True` if it creates load balancer listeners successfully.
+Will return ``True`` if it creates load balancer listeners successfully.
 
 As mentioned above for backend Server, to enable the policies on the listeners,
-need to call "SetLoadBalancerPoliciesOfListener" action
+need to call ``SetLoadBalancerPoliciesOfListener`` action
 
 .. literalinclude:: /examples/loadbalancer/elb/ex_set_balancer_policies_listener.py
    :language: python
 
-Will return `True` if it sets load balancer policies for listeners successfully.
+Will return ``True`` if it sets load balancer policies for listeners successfully.
 
 To disable the policy you just need to pass the policies parameter as empty
 list
