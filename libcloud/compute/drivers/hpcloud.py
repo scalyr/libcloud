@@ -19,7 +19,9 @@ OpenStack driver.
 
 from libcloud.compute.types import Provider, LibcloudError
 from libcloud.compute.drivers.openstack import OpenStack_1_1_Connection
-from libcloud.compute.drivers.openstack import OpenStack_1_1_NodeDriver
+from libcloud.compute.drivers.openstack import OpenStack_1_1_BaseNodeDriver
+from libcloud.compute.drivers.openstack_extensions import \
+    OpenStackFloatingIPsExtensionMixin
 
 
 __all__ = [
@@ -69,7 +71,8 @@ class HPCloudConnection(OpenStack_1_1_Connection):
         return public_url
 
 
-class HPCloudNodeDriver(OpenStack_1_1_NodeDriver):
+class HPCloudNodeDriver(OpenStack_1_1_BaseNodeDriver,
+                        OpenStackFloatingIPsExtensionMixin):
     name = 'HP Public Cloud (Helion)'
     website = 'http://www.hpcloud.com/'
     connectionCls = HPCloudConnection
