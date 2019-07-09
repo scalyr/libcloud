@@ -67,6 +67,7 @@ __all__ = [
     'NodeImageMember',
     'NodeLocation',
     'NodeAuthSSHKey',
+    'NodeAuthSSHKeyIDs',
     'NodeAuthPassword',
     'NodeDriver',
 
@@ -497,6 +498,26 @@ class NodeAuthSSHKey(object):
         return '<NodeAuthSSHKey>'
 
 
+class NodeAuthSSHKeyIDs(object):
+    """
+    Class representing a list of SSH key IDs (as used and returned by the
+    provider API) which will be installed for authentication to a node.
+    """
+
+    def __init__(self, key_ids):
+        """
+        :param key_ids: A list of key id.
+        :type key_ids: ``list`` of ``str``
+        """
+        if not isinstance(key_ids, (list, tuple)):
+            raise ValueError('key_ids argument needs to be a list')
+
+        self.key_ids = key_ids
+
+    def __repr__(self):
+        return '<NodeAuthSSHKeyIDs key_ids=%s>' % (str(self.key_ids))
+
+
 class NodeAuthPassword(object):
     """
     A password to be used for authentication to a node.
@@ -721,6 +742,8 @@ class NodeDriver(BaseDriver):
         - :meth:`libcloud.compute.base.NodeDriver.create_node`
             - ssh_key: Supports :class:`.NodeAuthSSHKey` as an authentication
               method for nodes.
+            - ssh_key_ids: Supports :class:`.NodeAuthSSHKeyIDs`` as an
+              authentication method for nodes.
             - password: Supports :class:`.NodeAuthPassword` as an
               authentication
               method for nodes.
@@ -938,12 +961,13 @@ class NodeDriver(BaseDriver):
 
         if 'auth' in kwargs:
             auth = kwargs['auth']
-            if not isinstance(auth, (NodeAuthSSHKey, NodeAuthPassword)):
+            if not isinstance(auth, (NodeAuthSSHKey, NodeAuthSSHKeyIDs,
+                                     NodeAuthPassword)):
                 raise NotImplementedError(
-                    'If providing auth, only NodeAuthSSHKey or'
-                    'NodeAuthPassword is supported')
+                    'If providing auth, only NodeAuthSSHKey, NodeAuthSSHKeyIDs'
+                    'and NodeAuthPassword is supported')
         elif 'ssh_key' in kwargs:
-            # If an ssh_key is provided we can try deploy_node
+            # If an ssh_key or ssh_key_ids are provided we can try deploy_node
             pass
         elif 'create_node' in self.features:
             f = self.features['create_node']
@@ -1439,6 +1463,12 @@ class NodeDriver(BaseDriver):
             raise LibcloudError(
                 'SSH Key provided as authentication information, but SSH Key'
                 'not supported', driver=self)
+        elif isinstance(auth, NodeAuthSSHKeyIDs):
+            if 'ssh_key_ids' in self.features['create_node']:
+                return auth
+            raise LibcloudError(
+                'SSH Key IDs provided as authentication information, but SSH'
+                'Key IDs not supported', driver=self)
 
         if 'password' in self.features['create_node']:
             value = os.urandom(16)
