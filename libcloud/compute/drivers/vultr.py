@@ -29,6 +29,7 @@ from libcloud.common.types import LibcloudError
 from libcloud.common.types import ServiceUnavailableError
 from libcloud.compute.base import NodeDriver
 from libcloud.compute.base import Node, NodeImage, NodeSize, NodeLocation
+from libcloud.compute.base import NodeAuthSSHKeyIDs
 
 
 class rate_limited:
@@ -159,6 +160,7 @@ class VultrNodeDriver(NodeDriver):
     type = Provider.VULTR
     name = 'Vultr'
     website = 'https://www.vultr.com'
+    features = {'create_node': 'ssh_key_ids'}
 
     NODE_STATE_MAP = {'pending': NodeState.PENDING,
                       'active': NodeState.RUNNING}
@@ -232,7 +234,7 @@ class VultrNodeDriver(NodeDriver):
     def list_images(self):
         return self._list_resources('/v1/os/list', self._to_image)
 
-    def create_node(self, name, size, image, location, ex_ssh_key_ids=None,
+    def create_node(self, name, size, image, location, auth=None, ex_ssh_key_ids=None,
                     ex_create_attr=None):
         """
         Create a node
@@ -290,6 +292,12 @@ class VultrNodeDriver(NodeDriver):
 
         if ex_ssh_key_ids is not None:
             params['SSHKEYID'] = ','.join(ex_ssh_key_ids)
+
+        # NodeAuthSSHKeyIDs was added in v2.5.1-dev. For backward compatibility
+        # reasons, we still support "ex_ssh_key_ids" argument
+        # NOTE: "auth" argument has precedence over other deperecated arguments
+        if auth and isinstance(auth, NodeAuthSSHKeyIDs):
+            params['SSHKEYID'] = ','.join(auth.key_ids)
 
         ex_create_attr = ex_create_attr or {}
         for key, value in ex_create_attr.items():

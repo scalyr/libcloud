@@ -26,6 +26,7 @@ from libcloud.common.digitalocean import DigitalOcean_v2_BaseDriver
 from libcloud.common.types import InvalidCredsError
 from libcloud.compute.types import Provider, NodeState
 from libcloud.compute.base import NodeImage, NodeSize, NodeLocation, KeyPair
+from libcloud.compute.base import NodeAuthSSHKeyIDs
 from libcloud.compute.base import Node, NodeDriver
 from libcloud.compute.base import StorageVolume, VolumeSnapshot
 
@@ -87,6 +88,8 @@ class DigitalOcean_v2_NodeDriver(DigitalOcean_v2_BaseDriver,
     DigitalOcean NodeDriver using v2 of the API.
     """
 
+    features = {'create_node': 'ssh_key_ids'}
+
     NODE_STATE_MAP = {'new': NodeState.PENDING,
                       'off': NodeState.STOPPED,
                       'active': NodeState.RUNNING,
@@ -128,8 +131,9 @@ class DigitalOcean_v2_NodeDriver(DigitalOcean_v2_BaseDriver,
         data = self._paginated_request('/v2/volumes', 'volumes')
         return list(map(self._to_volume, data))
 
-    def create_node(self, name, size, image, location, ex_create_attr=None,
-                    ex_ssh_key_ids=None, ex_user_data=None):
+    def create_node(self, name, size, image, location, auth=None,
+                    ex_create_attr=None, ex_ssh_key_ids=None,
+                    ex_user_data=None):
         """
         Create a node.
 
@@ -173,6 +177,12 @@ class DigitalOcean_v2_NodeDriver(DigitalOcean_v2_BaseDriver,
         for key in ex_create_attr.keys():
             if key in self.EX_CREATE_ATTRIBUTES:
                 attr[key] = ex_create_attr[key]
+
+        # NodeAuthSSHKeyIDs was added in v2.5.1-dev. For backward compatibility
+        # reasons, we still support "ex_ssh_key_ids" argument
+        # NOTE: "auth" argument has precedence over other deperecated arguments
+        if auth and isinstance(auth, NodeAuthSSHKeyIDs):
+            attr['ssh_keys'] = auth.key_ids
 
         res = self.connection.request('/v2/droplets',
                                       data=json.dumps(attr), method='POST')

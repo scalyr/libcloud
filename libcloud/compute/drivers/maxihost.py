@@ -3,6 +3,7 @@ import re
 
 from libcloud.compute.base import Node, NodeDriver, NodeLocation
 from libcloud.compute.base import NodeSize, NodeImage
+from libcloud.compute.base import NodeAuthSSHKeyIDs
 from libcloud.compute.base import KeyPair
 from libcloud.common.maxihost import MaxihostConnection
 from libcloud.compute.types import Provider, NodeState
@@ -24,8 +25,9 @@ class MaxihostNodeDriver(NodeDriver):
     type = Provider.MAXIHOST
     name = 'Maxihost'
     website = 'https://www.maxihost.com/'
+    features = {'create_node': 'ssh_key_ids'}
 
-    def create_node(self, name, size, image, location,
+    def create_node(self, name, size, image, location, auth=None,
                     ex_ssh_key_ids=None):
         """
         Create a node.
@@ -39,6 +41,12 @@ class MaxihostNodeDriver(NodeDriver):
 
         if ex_ssh_key_ids:
             attr['ssh_keys'] = ex_ssh_key_ids
+
+        # NodeAuthSSHKeyIDs was added in v2.5.1-dev. For backward compatibility
+        # reasons, we still support "ex_ssh_key_ids" argument
+        # NOTE: "auth" argument has precedence over other deperecated arguments
+        if auth and isinstance(auth, NodeAuthSSHKeyIDs):
+            attr['ssh_keys'] = auth.key_ids
 
         try:
             res = self.connection.request('/devices',
