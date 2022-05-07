@@ -21,6 +21,8 @@ import os
 import sys
 import tempfile
 
+import libcloud.compute.ssh
+
 from libcloud import _init_once
 from libcloud.test import LibcloudTestCase
 from libcloud.test import unittest
@@ -57,12 +59,19 @@ class ParamikoSSHClientTests(LibcloudTestCase):
             "key": "~/.ssh/ubuntu_ssh",
             "timeout": "600",
         }
-        _, self.tmp_file = tempfile.mkstemp()
+        self.tmp_fd, self.tmp_file = tempfile.mkstemp()
         os.environ["LIBCLOUD_DEBUG"] = self.tmp_file
         _init_once()
         self.ssh_cli = ParamikoSSHClient(**conn_params)
 
+        libcloud.compute.ssh.LIBCLOUD_PARAMIKO_SHA2_BACKWARD_COMPATIBILITY = True
+
     def tearDown(self):
+        try:
+            os.close(self.tmp_fd)
+        except Exception:
+            pass
+
         if "LIBCLOUD_DEBUG" in os.environ:
             del os.environ["LIBCLOUD_DEBUG"]
 
@@ -534,6 +543,10 @@ class ParamikoSSHClientTests(LibcloudTestCase):
         mock.close()
         self.assertLogMsg("Closing server connection")
 
+    def clear_log_file(self):
+        with open(self.tmp_file, "r+") as fp:
+            fp.truncate(0)
+
     def assertLogMsg(self, expected_msg):
         with open(self.tmp_file, "r") as fp:
             content = fp.read()
@@ -862,6 +875,96 @@ class ParamikoSSHClientTests(LibcloudTestCase):
 
         self.assertEqual(mock_client.open_sftp.call_count, 0)
         self.assertRaisesRegex(Exception, "Fatal exception", client._get_sftp_client)
+
+    @patch("paramiko.SSHClient", Mock)
+    def test_paramiko_client_290_rsa2_backward_compatibility(self):
+        conn_params = {
+            "hostname": "dummy.host.org",
+            "username": "ubuntu",
+            "password": "ubuntu",
+        }
+
+        expected_conn1 = {
+            "username": "ubuntu",
+            "password": "ubuntu",
+            "allow_agent": False,
+            "hostname": "dummy.host.org",
+            "look_for_keys": False,
+            "port": 22,
+        }
+
+        expected_conn2 = expected_conn1.copy()
+        expected_conn2["disabled_algorithms"] = {
+            "pubkeys": ["rsa-sha2-256", "rsa-sha2-512"]
+        }
+
+        def mock_connect(*args, **kwargs):
+            mock_connect.call_counter += 1
+            raise paramiko.ssh_exception.AuthenticationException("Auth error")
+
+        mock_connect.call_counter = 0
+
+        # pre v2.9.0, should not retry connect
+        self.clear_log_file()
+
+        libcloud.compute.ssh.PARAMIKO_VERSION_TUPLE = tuple([2, 8, 0])
+
+        self.assertEqual(mock_connect.call_counter, 0)
+        mock = ParamikoSSHClient(**conn_params)
+        mock.client.connect.side_effect = mock_connect
+        self.assertRaisesRegex(
+            paramiko.ssh_exception.AuthenticationException, "Auth error", mock.connect
+        )
+        self.assertEqual(mock_connect.call_counter, 1)
+
+        mock.client.connect.assert_called_once_with(**expected_conn1)
+        self.assertLogMsg("Connecting to server")
+
+        # >= v2.9.0, should retry connect on first auth error
+        self.clear_log_file()
+
+        def mock_connect(*args, **kwargs):
+            mock_connect.call_counter += 1
+            raise paramiko.ssh_exception.AuthenticationException("Auth error")
+
+        mock_connect.call_counter = 0
+
+        libcloud.compute.ssh.PARAMIKO_VERSION_TUPLE = tuple([2, 9, 0])
+
+        self.assertEqual(mock_connect.call_counter, 0)
+        mock = ParamikoSSHClient(**conn_params)
+        mock.client.connect.side_effect = mock_connect
+        self.assertRaisesRegex(
+            paramiko.ssh_exception.AuthenticationException, "Auth error", mock.connect
+        )
+        self.assertEqual(mock_connect.call_counter, 2)
+        mock.client.connect.assert_any_call(**expected_conn1)
+        mock.client.connect.assert_any_call(**expected_conn2)
+        self.assertLogMsg("Connecting to server")
+        self.assertLogMsg("Disabling SHA-2 variants")
+
+        # >= v2.9.0, should not retry connect on first auth error when env variable is set
+        self.clear_log_file()
+
+        libcloud.compute.ssh.LIBCLOUD_PARAMIKO_SHA2_BACKWARD_COMPATIBILITY = False
+
+        def mock_connect(*args, **kwargs):
+            mock_connect.call_counter += 1
+            raise paramiko.ssh_exception.AuthenticationException("Auth error")
+
+        mock_connect.call_counter = 0
+
+        libcloud.compute.ssh.PARAMIKO_VERSION_TUPLE = tuple([2, 9, 0])
+
+        self.assertEqual(mock_connect.call_counter, 0)
+        mock = ParamikoSSHClient(**conn_params)
+        mock.client.connect.side_effect = mock_connect
+        self.assertRaisesRegex(
+            paramiko.ssh_exception.AuthenticationException, "Auth error", mock.connect
+        )
+        self.assertEqual(mock_connect.call_counter, 1)
+        mock.client.connect.assert_any_call(**expected_conn1)
+        self.assertLogMsg("Connecting to server")
 
 
 class ShellOutSSHClientTests(LibcloudTestCase):
