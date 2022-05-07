@@ -36,7 +36,7 @@ Compute
   disabled.
 
   This functionality can be disabled by setting
-  ``LIBCLOUD_PARAMIKO_SHA2_BACKWARD_COMPATIBILITY``environment variable to
+  ``LIBCLOUD_PARAMIKO_SHA2_BACKWARD_COMPATIBILITY`` environment variable to
   ``false``.
 
   For security reasons (to prevent possible downgrade attacks and similar) you
