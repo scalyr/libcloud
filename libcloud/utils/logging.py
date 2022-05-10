@@ -31,6 +31,12 @@ class ExtraLogFormatter(logging.Formatter):
     extra={'_id': 'user-1', '_path': '/foo/bar'}
     """
 
+    _fmt = "%(asctime)s %(levelname)s - %(funcName)s: %(message)s"
+    datefmt = "%Y-%m-%d %H:%M:%S"
+
+    def __init__(self, *args, **kwargs):
+        super(ExtraLogFormatter, self).__init__(fmt=self._fmt, *args, **kwargs)
+
     def format(self, record):
         custom_attributes = dict(
             [(k, v) for k, v in record.__dict__.items() if k.startswith("_")]

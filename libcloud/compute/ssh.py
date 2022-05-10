@@ -58,6 +58,7 @@ __all__ = [
     "SSHCommandTimeoutError",
 ]
 
+
 SUPPORTED_KEY_TYPES_URL = "https://libcloud.readthedocs.io/en/latest/compute/deployment.html#supported-private-ssh-key-types"  # NOQA
 
 # Set it to False to disable backward compatibility mode when running
@@ -420,11 +421,15 @@ class ParamikoSSHClient(BaseSSHClient):
             else:
                 raise e
 
+        self.logger.debug("Connected to server", extra=extra)
+
         return True
 
     def put(self, path, contents=None, chmod=None, mode="w"):
         extra = {"_path": path, "_mode": mode, "_chmod": chmod}
         self.logger.debug("Uploading file", extra=extra)
+
+        time_start = int(time.time())
 
         sftp = self._get_sftp_client()
 
@@ -456,6 +461,11 @@ class ParamikoSSHClient(BaseSSHClient):
             ak.chmod(chmod)
         ak.close()
 
+        time_end = int(time.time())
+        duration = time_end - time_start
+        extra["_duration"] = duration
+        self.logger.debug("File uploaded", extra=extra)
+
         file_path = self._sanitize_file_path(cwd=cwd, file_path=path)
         return file_path
 
@@ -469,6 +479,8 @@ class ParamikoSSHClient(BaseSSHClient):
         """
         extra = {"_path": path, "_chmod": chmod}
         self.logger.debug("Uploading file", extra=extra)
+
+        time_start = int(time.time())
 
         sftp = self._get_sftp_client()
 
@@ -501,6 +513,12 @@ class ParamikoSSHClient(BaseSSHClient):
             ak.close()
 
         file_path = self._sanitize_file_path(cwd=cwd, file_path=path)
+
+        time_end = int(time.time())
+        duration = time_end - time_start
+        extra["_duration"] = duration
+        self.logger.debug("File uploaded", extra=extra)
+
         return file_path
 
     def delete(self, path):
@@ -524,6 +542,8 @@ class ParamikoSSHClient(BaseSSHClient):
         """
         extra1 = {"_cmd": cmd}
         self.logger.debug("Executing command", extra=extra1)
+
+        time_start = int(time.time())
 
         # Use the system default buffer size
         bufsize = -1
@@ -592,7 +612,14 @@ class ParamikoSSHClient(BaseSSHClient):
         stdout_str = stdout.getvalue()
         stderr_str = stderr.getvalue()
 
-        extra2 = {"_status": status, "_stdout": stdout_str, "_stderr": stderr_str}
+        time_end = int(time.time())
+        duration = time_end - time_start
+        extra2 = {
+            "_status": status,
+            "_stdout": stdout_str,
+            "_stderr": stderr_str,
+            "_duration": duration,
+        }
         self.logger.debug("Command finished", extra=extra2)
 
         result = (stdout_str, stderr_str, status)  # type: Tuple[str, str, int]
