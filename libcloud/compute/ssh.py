@@ -253,7 +253,7 @@ class BaseSSHClient(object):
     def _get_and_setup_logger(self):
         # type: () -> logging.Logger
         logger = logging.getLogger("libcloud.compute.ssh")
-        path = os.getenv("LIBCLOUD_DEBUG") or os.getenv("LIBCLOUD_DEBUG_PARAMIKO")
+        path = os.getenv("LIBCLOUD_DEBUG")
 
         if path:
             handler = logging.FileHandler(path)
