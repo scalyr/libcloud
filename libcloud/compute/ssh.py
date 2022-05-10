@@ -429,7 +429,7 @@ class ParamikoSSHClient(BaseSSHClient):
         extra = {"_path": path, "_mode": mode, "_chmod": chmod}
         self.logger.debug("Uploading file", extra=extra)
 
-        time_start = int(time.time())
+        time_start = time.time()
 
         sftp = self._get_sftp_client()
 
@@ -461,8 +461,8 @@ class ParamikoSSHClient(BaseSSHClient):
             ak.chmod(chmod)
         ak.close()
 
-        time_end = int(time.time())
-        duration = time_end - time_start
+        time_end = time.time()
+        duration = round((time_end - time_start), 3)
         extra["_duration"] = duration
         self.logger.debug("File uploaded", extra=extra)
 
@@ -480,7 +480,7 @@ class ParamikoSSHClient(BaseSSHClient):
         extra = {"_path": path, "_chmod": chmod}
         self.logger.debug("Uploading file", extra=extra)
 
-        time_start = int(time.time())
+        time_start = time.time()
 
         sftp = self._get_sftp_client()
 
@@ -514,8 +514,8 @@ class ParamikoSSHClient(BaseSSHClient):
 
         file_path = self._sanitize_file_path(cwd=cwd, file_path=path)
 
-        time_end = int(time.time())
-        duration = time_end - time_start
+        time_end = time.time()
+        duration = round((time_end - time_start), 3)
         extra["_duration"] = duration
         self.logger.debug("File uploaded", extra=extra)
 
@@ -543,7 +543,7 @@ class ParamikoSSHClient(BaseSSHClient):
         extra1 = {"_cmd": cmd}
         self.logger.debug("Executing command", extra=extra1)
 
-        time_start = int(time.time())
+        time_start = time.time()
 
         # Use the system default buffer size
         bufsize = -1
@@ -613,7 +613,7 @@ class ParamikoSSHClient(BaseSSHClient):
         stderr_str = stderr.getvalue()
 
         time_end = int(time.time())
-        duration = time_end - time_start
+        duration = round((time_end - time_start), 3)
         extra2 = {
             "_status": status,
             "_stdout": stdout_str,
